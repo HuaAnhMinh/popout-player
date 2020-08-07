@@ -8,6 +8,7 @@ export const detectValues = (start, end) => {
     const deltaX = end.x - start.x
     const deltaY = end.y - start.y
 
+    // TO DO DETERMINATE DIRECTION
     // if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
     //     return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
     // } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {

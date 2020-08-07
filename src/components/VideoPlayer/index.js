@@ -1,50 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { detectValues } from "../../utils/utils";
+import React from 'react';
+
+import {
+    DEFAULT_WIDTH,
+    DEFAULT_HEIGHT
+} from "../../utils/constants";
 import './style.css';
+import enhance from './enhance';
 
 const VideoPlayer = (props) => {
-    const [isPressing, setIsPressing] = useState(false);
-    const [startPoint, setStartPoint] = useState(null);
-    const [markStartPoint, setMarkStartPoint] = useState(true);
-    const containerRef = React.createRef();
+    const {
+        containerRef,
+        resizedWidth,
+        resizedHeight,
+        onStopPress,
+        setIsPressing,
+        onChangePosition
+    } = props;
 
-    const onChangePosition = (event) => {
-        if (isPressing) {
-            if (markStartPoint) {
-                setStartPoint({ x: event.clientX, y: event.clientY });
-                setMarkStartPoint(false);
-            }
-            else {
-                const { top, left } = detectValues(startPoint, { x: event.clientX, y: event.clientY });
-                const containerNode = containerRef.current;
-                containerNode.style.top = `${top}px`;
-                containerNode.style.left = `${left}px`;
-            }
-        } else {
-            setStartPoint(null);
-            setMarkStartPoint(true);
-        }
-    }
     return (
-        <div className="container" ref={containerRef}>
-            <span className="header"
-                onMouseMove={(event) => onChangePosition(event)}
-                onMouseDown={() => setIsPressing(true)}
-                onMouseUp={() => {
-                    setIsPressing(false);
-                }}
-            >
-            </span>
-            <div >
-                <iframe width="340" height="200" title='video player'
-                    src="https://www.youtube.com/embed/tgbNymZ7vqY"
+        <div className="modal_wrap" onMouseUp={onStopPress}>
+            <div className="video__player__modal" ref={containerRef}>
+                <span className="header"
+                    onMouseMove={(event) => onChangePosition(event)}
+                    onMouseDown={() => setIsPressing(true)}
                 >
-                </iframe>
+                </span>
+                <div style={{ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT }}>
+                    <iframe width={resizedWidth} height={resizedHeight} title='video player'
+                        src="https://www.youtube.com/embed/tgbNymZ7vqY"
+                    >
+                    </iframe>
+                </div>
             </div>
         </div>
     );
 }
 
-export default VideoPlayer;
+export default enhance(VideoPlayer);
 
 
