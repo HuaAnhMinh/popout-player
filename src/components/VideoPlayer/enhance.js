@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { detectUpdatedPosition } from "../../utils/utils";
+import { detectUpdatedPosition, isMovingOnCorner, isMovingOnVertical } from "../../utils/utils";
 import {
     DEFAULT_TOP,
     DEFAULT_LEFT,
@@ -42,30 +42,31 @@ const enhance = (VideoPlayer) => props => {
         setIsMarkStartPoint(true);
     }
 
+
+
     const onDetermineCursor = ({ clientX: x, clientY: y }) => {
-        const { x: x1, y: y1 } = currentPosition;
-        const { resizedWidth, resizedHeight } = resizedModal
-
-        const movingPoint = { x, y };
-        const edg_1 = { x: x1, y: y1 }
-        const edg_2 = { x: x1 + resizedWidth, y: y1 };
-        const edg_3 = { x: x1, y: y1 + resizedHeight }
-        const edg_4 = { x: x1 + resizedWidth, y: y1 + resizedHeight };
+        const currentPoint = { x, y };
         const wrapIframeNode = wrapIframeRef.current;
+        const param = { currentPoint, currentPosition, resizedModal, cornerNum: '1' };
 
-        if (JSON.stringify(movingPoint) === JSON.stringify(edg_1)) {
+        if (isMovingOnCorner(param)) {
             wrapIframeNode.style.cursor = 'nw-resize';
         }
-        else if (JSON.stringify(movingPoint) === JSON.stringify(edg_2)) {
+        else if (isMovingOnCorner({ ...param, cornerNum: '2' })) {
             wrapIframeNode.style.cursor = 'ne-resize';
 
         }
-        else if (JSON.stringify(movingPoint) === JSON.stringify(edg_3)) {
+        else if (isMovingOnCorner({ ...param, cornerNum: '3' })) {
             wrapIframeNode.style.cursor = 'ne-resize';
 
         }
-        else if (JSON.stringify(movingPoint) === JSON.stringify(edg_4)) {
+        else if (isMovingOnCorner({ ...param, cornerNum: '4' })) {
             wrapIframeNode.style.cursor = 'nw-resize';
+        }
+        else if (
+            isMovingOnVertical(currentPoint, currentPosition, resizedModal)
+        ) {
+            wrapIframeNode.style.cursor = 'w-resize';
         }
         else {
             wrapIframeNode.style.cursor = 's-resize';

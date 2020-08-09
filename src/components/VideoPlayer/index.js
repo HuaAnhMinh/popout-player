@@ -15,7 +15,11 @@ const VideoPlayer = (props) => {
     } = props;
 
     return (
-        <div className="modal_wrap" onMouseUp={onStopPress}>
+        <div
+            className="modal_wrap"
+            onMouseUp={onStopPress}
+            onMouseMove={event => onDetermineCursor(event)}
+        >
             <div className="video__player__modal" ref={containerRef}>
                 <span className="header"
                     onMouseMove={(event) => onChangePosition(event)}
@@ -29,7 +33,6 @@ const VideoPlayer = (props) => {
                         border: '2px solid #000',
                         cursor: 's-resize'
                     }}
-                    onMouseMove={event => onDetermineCursor(event)}
                     ref={wrapIframeRef}
                 >
                     <iframe
