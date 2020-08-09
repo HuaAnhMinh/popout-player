@@ -4,7 +4,7 @@ export const vailidateUrl = (url) => {
     return true;
 }
 
-export const detectValues = (start, end) => {
+export const detectUpdatedPosition = (start, end) => {
     const deltaX = end.x - start.x
     const deltaY = end.y - start.y
 

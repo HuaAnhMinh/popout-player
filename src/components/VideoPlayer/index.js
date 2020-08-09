@@ -1,20 +1,17 @@
 import React from 'react';
 
-import {
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT
-} from "../../utils/constants";
 import './style.css';
 import enhance from './enhance';
 
 const VideoPlayer = (props) => {
     const {
         containerRef,
-        resizedWidth,
-        resizedHeight,
+        wrapIframeRef,
+        resizedModal,
         onStopPress,
         setIsPressing,
-        onChangePosition
+        onChangePosition,
+        onDetermineCursor
     } = props;
 
     return (
@@ -25,8 +22,21 @@ const VideoPlayer = (props) => {
                     onMouseDown={() => setIsPressing(true)}
                 >
                 </span>
-                <div style={{ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT }}>
-                    <iframe width={resizedWidth} height={resizedHeight} title='video player'
+                <div
+                    style={{
+                        position: "relative",
+                        height: resizedModal.resizedHeight,
+                        border: '2px solid #000',
+                        cursor: 's-resize'
+                    }}
+                    onMouseMove={event => onDetermineCursor(event)}
+                    ref={wrapIframeRef}
+                >
+                    <iframe
+                        width={resizedModal.resizedWidth}
+                        height={resizedModal.resizedHeight}
+                        title='video player'
+                        style={{ borderWidth: "0px" }}
                         src="https://www.youtube.com/embed/tgbNymZ7vqY"
                     >
                     </iframe>
