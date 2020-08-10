@@ -4,23 +4,28 @@ export const vailidateUrl = (url) => {
     return true;
 }
 
-export const detectUpdatedPosition = (start, end) => {
+export const detectDiffOnPull = (start, end) => {
     const deltaX = end.x - start.x
     const deltaY = end.y - start.y
-
+    let direction;
     // TO DO DETERMINATE DIRECTION
     // if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
-    //     return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
+    //     direction = 'right';
+    //     //return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
     // } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-    //     return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
+    //     direction = "left";
+    //     //return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
     // } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
-    //     return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT };
+    //     direction = "bottom"
+    //     //return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT };
     // } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
-    //     return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT };
+    //     direction = "top";
+    //     //return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT };
     // }
-
-    return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT + deltaX }
+    return { diffLeft: deltaX, diffTop: deltaY, direction, endPoint: { x: end.x, y: end.y } }
 }
+
+
 
 export const isMovingOnCorner = ({ currentPoint, currentPosition, resizedModal, cornerNum }) => {
     let corner;
@@ -110,4 +115,9 @@ export const isMovingOnVertical = (currentPoint, currentPosition, resizedModal) 
             }
         }
     }
+}
+
+export const detectNewsize = (currentPoint, positionDiff) => {
+
+
 }
