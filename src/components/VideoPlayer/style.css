@@ -1,4 +1,7 @@
-.container{
+.modal_wrap{
+    height: 100%;
+}
+.video__player__modal{
     position: fixed;
     z-index: 9;
     box-shadow: 0px 0px 4px 3px rgba(0, 0, 0, 0.2);
@@ -6,9 +9,9 @@
     -webkit-box-shadow: 0px 0px 4px 3px rgba(0, 0, 0, 0.2);
     background-color: white;
     border-radius: 6px;
-    left: 200px;
+    left:200px;
     top: 133px;
-    cursor: pointer;
+     cursor: pointer;
 }
 
 
@@ -38,4 +41,5 @@
     padding-right: 10px;
     z-index: 2;
     left: 0px;
+    margin-top: 2px;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { vailidateUrl } from "../../utils/utils";
 import './style.css';
 
@@ -13,6 +13,7 @@ const Input = (props) => {
         setUrl(url);
         if (!isValid) setErrorMsg('Invalid Url');
     }
+
     return (
         <div className="input__wrap">
             <div>
@@ -20,7 +21,6 @@ const Input = (props) => {
                 <button disabled={errorMsg} onClick={() => setIsOpenModal(true)}>Play</button>
             </div>
             <p>{errorMsg}</p>
-
         </div>
     );
 }
