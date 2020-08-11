@@ -1,4 +1,4 @@
-import { DEFAULT_TOP, DEFAULT_LEFT, DEFAULT_CORNER_RADIUS } from "./constants";
+import { DEFAULT_CORNER_RADIUS } from "./constants";
 
 export const vailidateUrl = (url) => {
     return true;
@@ -8,24 +8,20 @@ export const detectDiffOnPull = (start, end) => {
     const deltaX = end.x - start.x
     const deltaY = end.y - start.y
     let direction;
-    // TO DO DETERMINATE DIRECTION
-    // if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
-    //     direction = 'right';
-    //     //return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
-    // } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-    //     direction = "left";
-    //     //return { top: DEFAULT_TOP, left: DEFAULT_LEFT + deltaX };
-    // } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
-    //     direction = "bottom"
-    //     //return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT };
-    // } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
-    //     direction = "top";
-    //     //return { top: DEFAULT_TOP + deltaY, left: DEFAULT_LEFT };
-    // }
-    return { diffLeft: deltaX, diffTop: deltaY, direction, endPoint: { x: end.x, y: end.y } }
+
+    if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+        direction = 'right';
+    } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
+        direction = "left";
+    } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
+        direction = "bottom"
+    } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
+        direction = "top";
+    }
+
+    return { diffLeft: deltaX, diffTop: deltaY, direction, };
+
 }
-
-
 
 export const isMovingOnCorner = ({ currentPoint, currentPosition, resizedModal, cornerNum }) => {
     let corner;

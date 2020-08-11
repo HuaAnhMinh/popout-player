@@ -5,36 +5,27 @@ import enhance from './enhance';
 
 const VideoPlayer = (props) => {
     const {
-        containerRef,
-        isUpdatingPosition,
         isPressing,
+        containerRef,
         wrapIframeRef,
         resizedModal,
         onStopPress,
         setIsPressing,
         onChangePosition,
         onDetermineCursor,
-        onResizeModal,
         setIsUpdatingPosition
     } = props;
 
     return (
         <div
             className="modal_wrap"
-            onMouseUp={() => {
-                onStopPress();
-            }}
+            onMouseUp={() => onStopPress()}
             onMouseMove={event => onDetermineCursor(event)}
             id="modal_wrap"
         >
             <div
                 className="video__player__modal"
                 ref={containerRef}
-                onMouseMove={(event) => {
-                    if (!isPressing || isUpdatingPosition) return;
-                    onResizeModal(event);
-                }}
-                onMouseDown={() => setIsPressing(true)}
             >
                 <span
                     className="header"
@@ -43,19 +34,18 @@ const VideoPlayer = (props) => {
                         setIsUpdatingPosition(true);
                         onChangePosition(event);
                     }}
-                    onMouseDown={() => {
-                        setIsPressing(true);
-                    }}
+                    onMouseDown={() => setIsPressing(true)}
                 >
                 </span>
                 <div
                     style={{
                         position: "relative",
                         height: resizedModal.resizedHeight,
-                        border: '2px solid #000',
+                        border: '6px solid #000',
                         cursor: 's-resize'
                     }}
                     ref={wrapIframeRef}
+                    onMouseDown={() => setIsPressing(true)}
                 >
                     <iframe
                         width={resizedModal.resizedWidth}
@@ -63,15 +53,11 @@ const VideoPlayer = (props) => {
                         title='video player'
                         style={{ borderWidth: "0px" }}
                         src="https://www.youtube.com/embed/tgbNymZ7vqY"
-                        onMouseUp={() => {
-                            console.log('------iframe--on stop press----');
-                            onStopPress();
-                        }}
                     >
                     </iframe>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
