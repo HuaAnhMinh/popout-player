@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   detectDiffOnPull,
@@ -16,7 +16,7 @@ const enhance = (VideoPlayer) => (props) => {
   const [isUpdatingPosition, setIsUpdatingPosition] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
   const [isMarkStartPoint, setIsMarkStartPoint] = useState(false);
-  const [startPoint, setStartPoint] = useState(null);
+  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const [currentPosition, setCurrentPosition] = useState({
     x: DEFAULT_LEFT,
     y: DEFAULT_TOP,
@@ -37,10 +37,11 @@ const enhance = (VideoPlayer) => (props) => {
       y: currentPosition.y + positionDiff.diffTop,
     });
     setIsPressing(false);
-    setStartPoint(null);
+    setStartPoint({ x: 0, y: 0 });
     setIsMarkStartPoint(false);
     setIsUpdatingPosition(false);
     setSizeDiff({ diffLeft: 0, diffTop: 0 });
+    setPositionDiff({ diffLeft: 0, diffTop: 0 });
   };
 
   const onCalculateDiff = ({ x, y }) => {
@@ -52,8 +53,6 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onDetermineCursor = ({ clientX: x, clientY: y }) => {
-    if (containerRef.current.style.cursor === "pointer") onStopPress();
-
     const currentPoint = { x, y };
     const wrapIframeNode = wrapIframeRef.current;
     const param = {
@@ -95,6 +94,7 @@ const enhance = (VideoPlayer) => (props) => {
 
   const onResizeModal = ({ clientX: x, clientY: y }) => {
     const containerNode = containerRef.current;
+    const wrapIframeNode = wrapIframeRef.current;
     const positionDiff = onCalculateDiff({ x, y });
 
     if (!positionDiff) return;
@@ -103,9 +103,9 @@ const enhance = (VideoPlayer) => (props) => {
     const { resizedWidth, resizedHeight } = resizedModal;
 
     if (direction === "left") {
-      if (Math.abs(startPoint.x - currentPosition.x) < 5) {
+      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         // update position
-        setPositionDiff(positionDiff);
+        setPositionDiff({ diffLeft: positionDiff.diffLeft, diffTop: 0 });
         containerNode.style.left = `${
           currentPosition.x + positionDiff.diffLeft
         }px`;
@@ -126,8 +126,8 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "right") {
-      if (Math.abs(startPoint.x - currentPosition.x) < 5) {
-        setPositionDiff(positionDiff);
+      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+        setPositionDiff({ diffLeft: positionDiff.diffLeft, diffTop: 0 });
         // update position
         containerNode.style.left = `${
           currentPosition.x + positionDiff.diffLeft
@@ -149,9 +149,9 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "top") {
-      if (Math.abs(startPoint.y - currentPosition.y) < 5) {
+      if (Math.abs(startPoint.y - currentPosition.y) < 10) {
         // update position
-        setPositionDiff(positionDiff);
+        setPositionDiff({ diffTop: positionDiff.diffTop, diffLeft: 0 });
         containerNode.style.top = `${
           currentPosition.y + positionDiff.diffTop
         }px`;
@@ -172,13 +172,12 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "bottom") {
-      if (Math.abs(startPoint.y - currentPosition.y) < 5) {
+      if (Math.abs(startPoint.y - currentPosition.y) < 10) {
         // update position
-        setPositionDiff(positionDiff);
+        setPositionDiff({ diffTop: positionDiff.diffTop, diffLeft: 0 });
         containerNode.style.top = `${
           currentPosition.y + positionDiff.diffTop
         }px`;
-
         setResizedModal({
           ...resizedModal,
           resizedHeight:
@@ -194,12 +193,98 @@ const enhance = (VideoPlayer) => (props) => {
       setSizeDiff(positionDiff);
     }
 
-    if (direction === "cross") {
-      setResizedModal({
-        ...resizedModal,
-        resizedHeight: resizedHeight + diffTop - sizeDiff.diffTop,
-        resizedWidth: resizedWidth + diffLeft - sizeDiff.diffLeft,
-      });
+    if (direction === "cross" && wrapIframeNode.style.cursor === "ne-resize") {
+      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+        setPositionDiff({ diffLeft: positionDiff.diffLeft, diffTop: 0 });
+        containerNode.style.left = `${
+          currentPosition.x + positionDiff.diffLeft
+        }px`;
+
+        if (diffTop > 0) {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth + (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight + (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        } else {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth - (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight - (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        }
+      } else {
+        setPositionDiff({ diffTop: positionDiff.diffTop, diffLeft: 0 });
+        containerNode.style.top = `${
+          currentPosition.y + positionDiff.diffTop
+        }px`;
+
+        if (diffTop > 0) {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth - (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight - (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        } else {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth + (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight + (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        }
+      }
+      setSizeDiff(positionDiff);
+    }
+
+    if (direction === "cross" && wrapIframeNode.style.cursor === "nw-resize") {
+      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+        setPositionDiff(positionDiff);
+        if (diffLeft > 0 && diffTop > 0) {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth - (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight - (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        } else {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth + (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight + (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        }
+      } else {
+        setPositionDiff({ diffLeft: 0, diffTop: 0 });
+        if (diffLeft > 0 && diffTop > 0) {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth + (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight + (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        } else {
+          setResizedModal({
+            ...resizedModal,
+            resizedWidth:
+              resizedWidth - (Math.abs(diffLeft) - Math.abs(sizeDiff.diffLeft)),
+            resizedHeight:
+              resizedHeight - (Math.abs(diffTop) - Math.abs(sizeDiff.diffTop)),
+          });
+        }
+      }
+      setSizeDiff(positionDiff);
     }
   };
 

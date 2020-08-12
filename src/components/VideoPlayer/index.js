@@ -35,6 +35,7 @@ const VideoPlayer = (props) => {
           onMouseDown={() => setIsPressing(true)}
         ></span>
         <div
+          id="wrapIframe"
           style={{
             position: "relative",
             height: resizedModal.resizedHeight,

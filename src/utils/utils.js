@@ -8,8 +8,9 @@ export const detectDiffOnPull = (start, end) => {
   const deltaX = end.x - start.x;
   const deltaY = end.y - start.y;
   let direction;
-
-  if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+  if (Math.abs(deltaX) === Math.abs(deltaY)) {
+    direction = "cross";
+  } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
     direction = "right";
   } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
     direction = "left";
@@ -18,7 +19,7 @@ export const detectDiffOnPull = (start, end) => {
   } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
     direction = "top";
   }
-
+  //direction = "cross";
   return { diffLeft: deltaX, diffTop: deltaY, direction };
 };
 
