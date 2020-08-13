@@ -19,9 +19,12 @@ const VideoPlayer = (props) => {
   return (
     <div
       className="modal_wrap"
-      onMouseUp={() => onStopPress()}
+      onMouseUp={() => {
+        onStopPress();
+      }}
       // Update size
       onMouseMove={(event) => onDetermineCursor(event)}
+      onMouseEnter={() => onStopPress()}
     >
       <div className="video__player__modal" ref={containerRef}>
         <span

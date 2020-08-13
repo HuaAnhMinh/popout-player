@@ -48,6 +48,7 @@ const enhance = (VideoPlayer) => (props) => {
     if (isMarkStartPoint) {
       return detectDiffOnPull(startPoint, { x, y });
     }
+
     setStartPoint({ x, y });
     setIsMarkStartPoint(true);
   };
@@ -96,7 +97,6 @@ const enhance = (VideoPlayer) => (props) => {
     const containerNode = containerRef.current;
     const wrapIframeNode = wrapIframeRef.current;
     const positionDiff = onCalculateDiff({ x, y });
-
     if (!positionDiff) return;
 
     const { diffLeft, diffTop, direction } = positionDiff;
@@ -247,6 +247,13 @@ const enhance = (VideoPlayer) => (props) => {
     if (direction === "cross" && wrapIframeNode.style.cursor === "nw-resize") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         setPositionDiff(positionDiff);
+        containerNode.style.left = `${
+          currentPosition.x + positionDiff.diffLeft
+        }px`;
+        containerNode.style.top = `${
+          currentPosition.y + positionDiff.diffTop
+        }px`;
+
         if (diffLeft > 0 && diffTop > 0) {
           setResizedModal({
             ...resizedModal,
@@ -266,6 +273,7 @@ const enhance = (VideoPlayer) => (props) => {
         }
       } else {
         setPositionDiff({ diffLeft: 0, diffTop: 0 });
+
         if (diffLeft > 0 && diffTop > 0) {
           setResizedModal({
             ...resizedModal,

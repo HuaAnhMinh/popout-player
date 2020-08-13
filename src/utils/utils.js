@@ -1,6 +1,6 @@
 import { DEFAULT_CORNER_RADIUS } from "./constants";
 
-export const vailidateUrl = (url) => {
+export const validateUrl = (url) => {
   return true;
 };
 
@@ -8,6 +8,7 @@ export const detectDiffOnPull = (start, end) => {
   const deltaX = end.x - start.x;
   const deltaY = end.y - start.y;
   let direction;
+
   if (Math.abs(deltaX) === Math.abs(deltaY)) {
     direction = "cross";
   } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
@@ -19,7 +20,7 @@ export const detectDiffOnPull = (start, end) => {
   } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
     direction = "top";
   }
-  //direction = "cross";
+
   return { diffLeft: deltaX, diffTop: deltaY, direction };
 };
 
