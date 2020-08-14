@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import {
-  detectDiffOnPull,
+  detectDiffTwoPoint,
   isMovingOnCorner,
   isMovingOnVertical,
 } from "../../utils/utils";
@@ -32,6 +32,8 @@ const enhance = (VideoPlayer) => (props) => {
   const wrapIframeRef = React.createRef();
 
   const onStopPress = () => {
+    // wrapIframeRef.current.style.borderWidth = "6px";
+
     setCurrentPosition({
       x: currentPosition.x + positionDiff.diffLeft,
       y: currentPosition.y + positionDiff.diffTop,
@@ -46,11 +48,12 @@ const enhance = (VideoPlayer) => (props) => {
 
   const onCalculateDiff = ({ x, y }) => {
     if (isMarkStartPoint) {
-      return detectDiffOnPull(startPoint, { x, y });
+      return detectDiffTwoPoint(startPoint, { x, y });
     }
 
     setStartPoint({ x, y });
     setIsMarkStartPoint(true);
+    return { diffLeft: 0, diffTop: 0 };
   };
 
   const onDetermineCursor = ({ clientX: x, clientY: y }) => {
@@ -87,7 +90,6 @@ const enhance = (VideoPlayer) => (props) => {
     const containerNode = containerRef.current;
     const positionDiff = onCalculateDiff({ x, y });
 
-    if (!positionDiff) return;
     setPositionDiff(positionDiff);
     containerNode.style.left = `${currentPosition.x + positionDiff.diffLeft}px`;
     containerNode.style.top = `${currentPosition.y + positionDiff.diffTop}px`;
@@ -97,11 +99,11 @@ const enhance = (VideoPlayer) => (props) => {
     const containerNode = containerRef.current;
     const wrapIframeNode = wrapIframeRef.current;
     const positionDiff = onCalculateDiff({ x, y });
-    if (!positionDiff) return;
 
     const { diffLeft, diffTop, direction } = positionDiff;
     const { resizedWidth, resizedHeight } = resizedModal;
 
+    // wrapIframeNode.style.borderWidth = "20px";
     if (direction === "left") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         // update position

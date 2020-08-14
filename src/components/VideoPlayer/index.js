@@ -19,12 +19,9 @@ const VideoPlayer = (props) => {
   return (
     <div
       className="modal_wrap"
-      onMouseUp={() => {
-        onStopPress();
-      }}
+      onMouseUp={() => onStopPress()}
       // Update size
       onMouseMove={(event) => onDetermineCursor(event)}
-      onMouseEnter={() => onStopPress()}
     >
       <div className="video__player__modal" ref={containerRef}>
         <span
@@ -54,9 +51,7 @@ const VideoPlayer = (props) => {
             title="video player"
             style={{ borderWidth: "0px" }}
             src="https://www.youtube.com/embed/tgbNymZ7vqY"
-            onMouseEnter={() => {
-              onStopPress();
-            }}
+            onMouseEnter={() => onStopPress()}
           ></iframe>
         </div>
       </div>

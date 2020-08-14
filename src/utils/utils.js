@@ -4,7 +4,7 @@ export const validateUrl = (url) => {
   return true;
 };
 
-export const detectDiffOnPull = (start, end) => {
+export const detectDiffTwoPoint = (start, end) => {
   const deltaX = end.x - start.x;
   const deltaY = end.y - start.y;
   let direction;
