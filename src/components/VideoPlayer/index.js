@@ -18,34 +18,34 @@ const VideoPlayer = (props) => {
 
   return (
     <div
-      className="modal_wrap"
-      onMouseUp={() => {
-        onStopPress();
-      }}
+      className="modal__wrap"
       // Update size
-      onMouseMove={(event) => onDetermineCursor(event)}
-      onMouseEnter={() => onStopPress()}
+      onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
+      // End update
+      onMouseUp={() => onStopPress()}
     >
       <div className="video__player__modal" ref={containerRef}>
         <span
           className="header"
           // Update position
-          onMouseMove={(event) => {
+          onMouseMove={({ clientX: x, clientY: y }) => {
             if (!isPressing) return;
             setIsUpdatingPosition(true);
-            onChangePosition(event);
+            onChangePosition({ x, y });
           }}
+          // Start update
           onMouseDown={() => setIsPressing(true)}
         ></span>
         <div
           id="wrapIframe"
+          ref={wrapIframeRef}
           style={{
             position: "relative",
             height: resizedModal.resizedHeight,
             border: "6px solid #000",
             cursor: "s-resize",
           }}
-          ref={wrapIframeRef}
+          // Start update
           onMouseDown={() => setIsPressing(true)}
         >
           <iframe
@@ -54,9 +54,8 @@ const VideoPlayer = (props) => {
             title="video player"
             style={{ borderWidth: "0px" }}
             src="https://www.youtube.com/embed/tgbNymZ7vqY"
-            onMouseEnter={() => {
-              onStopPress();
-            }}
+            // End update
+            onMouseEnter={() => onStopPress()}
           ></iframe>
         </div>
       </div>
