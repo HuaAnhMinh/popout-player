@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import {
   detectDiffTwoPoint,
@@ -12,7 +12,7 @@ import {
   DEFAULT_HEIGHT,
 } from "../../utils/constants";
 
-const enhance = (VideoPlayer) => (props) => {
+const enhance = (VideoPlayer) => () => {
   const [isUpdatingPosition, setIsUpdatingPosition] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
   const [isMarkStartPoint, setIsMarkStartPoint] = useState(false);
@@ -28,12 +28,24 @@ const enhance = (VideoPlayer) => (props) => {
   const [positionDiff, setPositionDiff] = useState({ diffLeft: 0, diffTop: 0 });
   const [sizeDiff, setSizeDiff] = useState({ diffLeft: 0, diffTop: 0 });
 
-  const containerRef = React.createRef();
-  const wrapIframeRef = React.createRef();
+  const containerRef = useRef(null);
+  const wrapIframeRef = useRef(null);
+
+  // useEffect(() => {
+  //   document.addEventListener("mousemove", ({ clientX: x, clientY: y }) => {
+  //     onDetermineCursor({ x, y });
+  //   });
+  //   document.addEventListener("mouseup", () => {
+  //     console.log("on mouseup");
+  //     onStopPress();
+  //   });
+  //   return () => {
+  //     document.removeEventListener("mousemove", () => {});
+  //     document.removeEventListener("mouseup", () => {});
+  //   };
+  // }, []);
 
   const onStopPress = () => {
-    // wrapIframeRef.current.style.borderWidth = "6px";
-
     setCurrentPosition({
       x: currentPosition.x + positionDiff.diffLeft,
       y: currentPosition.y + positionDiff.diffTop,
@@ -56,7 +68,7 @@ const enhance = (VideoPlayer) => (props) => {
     return { diffLeft: 0, diffTop: 0 };
   };
 
-  const onDetermineCursor = ({ clientX: x, clientY: y }) => {
+  const onDetermineCursor = ({ x, y }) => {
     const currentPoint = { x, y };
     const wrapIframeNode = wrapIframeRef.current;
     const param = {
@@ -83,10 +95,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (!isPressing || isUpdatingPosition) return;
-    onResizeModal({ clientX: x, clientY: y });
+    onResizeModal({ x, y });
   };
 
-  const onChangePosition = ({ clientX: x, clientY: y }) => {
+  const onChangePosition = ({ x, y }) => {
     const containerNode = containerRef.current;
     const positionDiff = onCalculateDiff({ x, y });
 
@@ -95,7 +107,7 @@ const enhance = (VideoPlayer) => (props) => {
     containerNode.style.top = `${currentPosition.y + positionDiff.diffTop}px`;
   };
 
-  const onResizeModal = ({ clientX: x, clientY: y }) => {
+  const onResizeModal = ({ x, y }) => {
     const containerNode = containerRef.current;
     const wrapIframeNode = wrapIframeRef.current;
     const positionDiff = onCalculateDiff({ x, y });
@@ -103,7 +115,6 @@ const enhance = (VideoPlayer) => (props) => {
     const { diffLeft, diffTop, direction } = positionDiff;
     const { resizedWidth, resizedHeight } = resizedModal;
 
-    // wrapIframeNode.style.borderWidth = "20px";
     if (direction === "left") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         // update position
@@ -300,7 +311,6 @@ const enhance = (VideoPlayer) => (props) => {
 
   return (
     <VideoPlayer
-      isUpdatingPosition={isUpdatingPosition}
       setIsUpdatingPosition={setIsUpdatingPosition}
       isPressing={isPressing}
       containerRef={containerRef}
