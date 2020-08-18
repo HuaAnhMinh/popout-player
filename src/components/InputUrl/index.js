@@ -3,7 +3,7 @@ import { validateUrl } from "../../utils/utils";
 import "./style.css";
 
 const Input = (props) => {
-  const { url, setUrl, setIsOpenModal } = props;
+  const { url, isOpenModal, setUrl, setIsOpenModal } = props;
   const [errorMsg, setErrorMsg] = useState("");
 
   const onChangeText = (url) => {
@@ -20,8 +20,14 @@ const Input = (props) => {
           placeholder="Youtube URL"
           onChange={(event) => onChangeText(event.target.value)}
           value={url}
+          disabled={isOpenModal}
         />
-        <button disabled={errorMsg} onClick={() => setIsOpenModal(true)}>
+        <button
+          disabled={url.length === 0 || errorMsg || isOpenModal}
+          onClick={() => {
+            setIsOpenModal(true);
+          }}
+        >
           Play
         </button>
       </div>

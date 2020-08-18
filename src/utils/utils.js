@@ -1,7 +1,8 @@
 import { DEFAULT_CORNER_RADIUS } from "./constants";
 
 export const validateUrl = (url) => {
-  return true;
+  if (url.includes("https://www.youtube.com/")) return true;
+  return false;
 };
 
 export const detectDiffTwoPoint = (start, end) => {

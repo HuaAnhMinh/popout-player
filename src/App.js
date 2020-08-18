@@ -10,8 +10,13 @@ const App = () => {
 
   return (
     <div className="App">
-      <InputUrl url={url} setUrl={setUrl} setIsOpenModal={setIsOpenModal} />
-      {isOpenModal && <VideoPlayer />}
+      <InputUrl
+        url={url}
+        isOpenModal={isOpenModal}
+        setUrl={setUrl}
+        setIsOpenModal={setIsOpenModal}
+      />
+      {isOpenModal && <VideoPlayer url={url} setIsOpenModal={setIsOpenModal} />}
     </div>
   );
 };
