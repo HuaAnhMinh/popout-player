@@ -56,12 +56,19 @@ const VideoPlayer = (props) => {
             width={resizedModal.resizedWidth}
             height={resizedModal.resizedHeight}
             title="video player"
-            style={{ borderWidth: "0px" }}
+            style={{
+              borderWidth: "0px",
+              minWidth: "340px",
+              minHeight: "200px",
+            }}
             src={url}
-            frameborder="0"
+            frameBorder="0"
             scrolling="0"
             // End update
-            onMouseEnter={() => onStopPress()}
+            onMouseEnter={() => {
+              console.log("on mouse enter iframe");
+              onStopPress();
+            }}
           ></iframe>
         </div>
       </div>
