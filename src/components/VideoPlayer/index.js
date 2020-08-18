@@ -5,6 +5,8 @@ import enhance from "./enhance";
 
 const VideoPlayer = (props) => {
   const {
+    url,
+    onCloseModal,
     isPressing,
     containerRef,
     wrapIframeRef,
@@ -35,7 +37,9 @@ const VideoPlayer = (props) => {
           }}
           // Start update
           onMouseDown={() => setIsPressing(true)}
-        ></span>
+        >
+          <div id="close" onClick={() => onCloseModal(false)}></div>
+        </span>
         <div
           id="wrapIframe"
           ref={wrapIframeRef}
@@ -53,7 +57,7 @@ const VideoPlayer = (props) => {
             height={resizedModal.resizedHeight}
             title="video player"
             style={{ borderWidth: "0px" }}
-            src="https://www.youtube.com/embed/tgbNymZ7vqY"
+            src={url}
             // End update
             onMouseEnter={() => onStopPress()}
           ></iframe>

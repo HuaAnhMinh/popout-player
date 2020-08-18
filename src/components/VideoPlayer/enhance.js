@@ -12,7 +12,7 @@ import {
   DEFAULT_HEIGHT,
 } from "../../utils/constants";
 
-const enhance = (VideoPlayer) => () => {
+const enhance = (VideoPlayer) => (props) => {
   const [isUpdatingPosition, setIsUpdatingPosition] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
   const [isMarkStartPoint, setIsMarkStartPoint] = useState(false);
@@ -311,6 +311,8 @@ const enhance = (VideoPlayer) => () => {
 
   return (
     <VideoPlayer
+      url={props.url}
+      onCloseModal={props.setIsOpenModal}
       setIsUpdatingPosition={setIsUpdatingPosition}
       isPressing={isPressing}
       containerRef={containerRef}

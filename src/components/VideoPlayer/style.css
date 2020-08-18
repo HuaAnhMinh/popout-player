@@ -44,3 +44,13 @@
   top: 8px;
   right: 8px;
 }
+
+#close {
+  margin-top: 8px;
+}
+#close:before {
+  float: right;
+  content: "✖";
+  padding: 0.5em;
+  cursor: pointer;
+}
