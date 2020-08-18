@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import {
+  getEmbedUrl,
   detectDiffTwoPoint,
   isMovingOnCorner,
   isMovingOnVertical,
@@ -311,7 +312,7 @@ const enhance = (VideoPlayer) => (props) => {
 
   return (
     <VideoPlayer
-      url={props.url}
+      url={getEmbedUrl(props.url)}
       onCloseModal={props.setIsOpenModal}
       setIsUpdatingPosition={setIsUpdatingPosition}
       isPressing={isPressing}
