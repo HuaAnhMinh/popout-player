@@ -1,61 +1,69 @@
-import React from "react";
+import React from 'react';
 
-import "./style.css";
-import enhance from "./enhance";
+import './style.css';
+import enhance from './enhance';
 
 const VideoPlayer = (props) => {
   const {
-    isPressing,
     containerRef,
     wrapIframeRef,
     resizedModal,
-    onStopPress,
     setIsPressing,
-    onChangePosition,
-    onDetermineCursor,
-    setIsUpdatingPosition,
+    currentPosition,
+    isPressing,
   } = props;
 
   return (
     <div
       className="modal__wrap"
       // Update size
-      onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
+      // onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
       // End update
-      onMouseUp={() => onStopPress()}
+      // onMouseUp={() => onStopPress()}
     >
-      <div className="video__player__modal" ref={containerRef}>
+      <div
+        className="video__player__modal"
+        style={{
+          top: currentPosition.y,
+          left: currentPosition.x,
+        }}
+        ref={containerRef}
+        onMouseDown={() => setIsPressing(true)}
+      >
         <span
           className="header"
           // Update position
-          onMouseMove={({ clientX: x, clientY: y }) => {
-            if (!isPressing) return;
-            setIsUpdatingPosition(true);
-            onChangePosition({ x, y });
-          }}
+          // onMouseMove={({ clientX: x, clientY: y }) => {
+          //   if (!isPressing) return;
+          //   setIsUpdatingPosition(true);
+          //   onChangePosition({ x, y });
+          // }}
           // Start update
-          onMouseDown={() => setIsPressing(true)}
+          // onMouseDown={() => setIsPressing(true)}
         ></span>
         <div
           id="wrapIframe"
           ref={wrapIframeRef}
           style={{
-            position: "relative",
+            position: 'relative',
             height: resizedModal.resizedHeight,
-            border: "6px solid #000",
-            cursor: "s-resize",
+            border: '6px solid #000',
+            cursor: 's-resize',
           }}
           // Start update
-          onMouseDown={() => setIsPressing(true)}
+          // onMouseDown={() => setIsPressing(true)}
         >
           <iframe
             width={resizedModal.resizedWidth}
             height={resizedModal.resizedHeight}
             title="video player"
-            style={{ borderWidth: "0px" }}
+            style={{
+              borderWidth: '0px',
+              pointerEvents: isPressing ? 'none' : 'initial',
+            }}
             src="https://www.youtube.com/embed/tgbNymZ7vqY"
             // End update
-            onMouseEnter={() => onStopPress()}
+            // onMouseEnter={() => onStopPress()}
           ></iframe>
         </div>
       </div>
