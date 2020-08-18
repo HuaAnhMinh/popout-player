@@ -10,7 +10,11 @@ const Input = (props) => {
     const isValid = validateUrl(url);
 
     setUrl(url);
-    if (!isValid) setErrorMsg("Invalid Url");
+    if (!isValid) {
+      setErrorMsg("Invalid Url");
+      return;
+    }
+    setErrorMsg("");
   };
 
   return (
