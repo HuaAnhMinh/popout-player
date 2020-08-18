@@ -58,6 +58,8 @@ const VideoPlayer = (props) => {
             title="video player"
             style={{ borderWidth: "0px" }}
             src={url}
+            frameborder="0"
+            scrolling="0"
             // End update
             onMouseEnter={() => onStopPress()}
           ></iframe>
