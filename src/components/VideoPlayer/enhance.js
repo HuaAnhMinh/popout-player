@@ -31,12 +31,12 @@ const enhance = (VideoPlayer) => (props) => {
   const wrapIframeRef = useRef(null);
 
   useEffect(() => {
-    window.addEventListener("mouseup", () => {
-      console.log("on mouseup");
+    function handleMouseUp(e) {
       onStopPress();
-    });
+    }
+    window.addEventListener("mouseup", handleMouseUp, true);
     return () => {
-      window.removeEventListener("mouseup", () => {});
+      window.removeEventListener("mouseup", handleMouseUp, true);
     };
   }, []);
 
