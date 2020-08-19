@@ -24,7 +24,10 @@ const VideoPlayer = (props) => {
       // Update size
       onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
       // End update
-      onMouseUp={() => onStopPress()}
+      // onMouseUp={() => {
+      //   console.log("on stop press");
+      //   onStopPress();
+      // }}
     >
       <div className="video__player__modal" ref={containerRef}>
         <span
@@ -58,8 +61,9 @@ const VideoPlayer = (props) => {
             title="video player"
             style={{
               borderWidth: "0px",
-              minWidth: "340px",
-              minHeight: "200px",
+              // minWidth: "340px",
+              // minHeight: "200px",
+              pointerEvents: isPressing ? "none" : "initial",
             }}
             src={url}
             frameBorder="0"
