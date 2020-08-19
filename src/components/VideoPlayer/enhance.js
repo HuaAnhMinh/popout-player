@@ -27,7 +27,6 @@ const enhance = (VideoPlayer) => (props) => {
     resizedHeight: DEFAULT_HEIGHT,
   });
 
-  const containerRef = useRef(null);
   const wrapIframeRef = useRef(null);
 
   useEffect(() => {
@@ -88,7 +87,6 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onChangePosition = ({ x, y }) => {
-    const containerNode = containerRef.current;
     const positionDiff = onCalculateDiff({ x, y });
 
     setStartPoint({ x, y });
@@ -96,13 +94,9 @@ const enhance = (VideoPlayer) => (props) => {
       x: currentPosition.x + positionDiff.diffLeft,
       y: currentPosition.y + positionDiff.diffTop,
     });
-
-    containerNode.style.left = `${currentPosition.x + positionDiff.diffLeft}px`;
-    containerNode.style.top = `${currentPosition.y + positionDiff.diffTop}px`;
   };
 
   const onResizeModal = ({ x, y }) => {
-    const containerNode = containerRef.current;
     const wrapIframeNode = wrapIframeRef.current;
     const positionDiff = onCalculateDiff({ x, y });
     setStartPoint({ x, y });
@@ -112,11 +106,6 @@ const enhance = (VideoPlayer) => (props) => {
 
     if (direction === "left") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
-        // update position
-        containerNode.style.left = `${
-          currentPosition.x + positionDiff.diffLeft
-        }px`;
-
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -137,11 +126,6 @@ const enhance = (VideoPlayer) => (props) => {
 
     if (direction === "right") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
-        // update position
-        containerNode.style.left = `${
-          currentPosition.x + positionDiff.diffLeft
-        }px`;
-
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -161,10 +145,6 @@ const enhance = (VideoPlayer) => (props) => {
 
     if (direction === "top") {
       if (Math.abs(startPoint.y - currentPosition.y) < 10) {
-        // update position
-        containerNode.style.top = `${
-          currentPosition.y + positionDiff.diffTop
-        }px`;
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -184,10 +164,6 @@ const enhance = (VideoPlayer) => (props) => {
 
     if (direction === "bottom") {
       if (Math.abs(startPoint.y - currentPosition.y) < 10) {
-        // update position
-        containerNode.style.top = `${
-          currentPosition.y + positionDiff.diffTop
-        }px`;
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -207,9 +183,6 @@ const enhance = (VideoPlayer) => (props) => {
 
     if (direction === "cross" && wrapIframeNode.style.cursor === "ne-resize") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
-        containerNode.style.left = `${
-          currentPosition.x + positionDiff.diffLeft
-        }px`;
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -229,10 +202,6 @@ const enhance = (VideoPlayer) => (props) => {
           });
         }
       } else {
-        containerNode.style.top = `${
-          currentPosition.y + positionDiff.diffTop
-        }px`;
-
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -256,13 +225,6 @@ const enhance = (VideoPlayer) => (props) => {
 
     if (direction === "cross" && wrapIframeNode.style.cursor === "nw-resize") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
-        containerNode.style.left = `${
-          currentPosition.x + positionDiff.diffLeft
-        }px`;
-        containerNode.style.top = `${
-          currentPosition.y + positionDiff.diffTop
-        }px`;
-
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y + positionDiff.diffTop,
@@ -305,13 +267,12 @@ const enhance = (VideoPlayer) => (props) => {
       onCloseModal={props.setIsOpenModal}
       setIsUpdatingPosition={setIsUpdatingPosition}
       isPressing={isPressing}
-      containerRef={containerRef}
       wrapIframeRef={wrapIframeRef}
       resizedModal={resizedModal}
+      currentPosition={currentPosition}
       setIsPressing={setIsPressing}
       onChangePosition={onChangePosition}
       onResizeModal={onResizeModal}
-      onStopPress={onStopPress}
       onDetermineCursor={onDetermineCursor}
     />
   );
