@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   getEmbedUrl,
@@ -26,8 +26,7 @@ const enhance = (VideoPlayer) => (props) => {
     resizedWidth: DEFAULT_WIDTH,
     resizedHeight: DEFAULT_HEIGHT,
   });
-
-  const wrapIframeRef = useRef(null);
+  const [pointerType, setPointerType] = useState("s-resize");
 
   useEffect(() => {
     function handleMouseUp(e) {
@@ -58,7 +57,6 @@ const enhance = (VideoPlayer) => (props) => {
 
   const onDetermineCursor = ({ x, y }) => {
     const currentPoint = { x, y };
-    const wrapIframeNode = wrapIframeRef.current;
     const param = {
       currentPoint,
       currentPosition,
@@ -67,19 +65,19 @@ const enhance = (VideoPlayer) => (props) => {
     };
 
     if (isMovingOnCorner(param)) {
-      wrapIframeNode.style.cursor = "nw-resize";
+      setPointerType("nw-resize");
     } else if (isMovingOnCorner({ ...param, cornerNum: "2" })) {
-      wrapIframeNode.style.cursor = "ne-resize";
+      setPointerType("ne-resize");
     } else if (isMovingOnCorner({ ...param, cornerNum: "3" })) {
-      wrapIframeNode.style.cursor = "ne-resize";
+      setPointerType("ne-resize");
     } else if (isMovingOnCorner({ ...param, cornerNum: "4" })) {
-      wrapIframeNode.style.cursor = "nw-resize";
+      setPointerType("nw-resize");
     } else if (
       isMovingOnVertical(currentPoint, currentPosition, resizedModal)
     ) {
-      wrapIframeNode.style.cursor = "w-resize";
+      setPointerType("w-resize");
     } else {
-      wrapIframeNode.style.cursor = "s-resize";
+      setPointerType("s-resize");
     }
 
     if (!isPressing || isUpdatingPosition) return;
@@ -97,14 +95,17 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onResizeModal = ({ x, y }) => {
-    const wrapIframeNode = wrapIframeRef.current;
-    const positionDiff = onCalculateDiff({ x, y });
+    const positionDiff = onCalculateDiff({
+      x,
+      y,
+    });
     setStartPoint({ x, y });
 
     const { diffLeft, diffTop, direction } = positionDiff;
     const { resizedWidth, resizedHeight } = resizedModal;
-
-    if (direction === "left") {
+    console.log(pointerType);
+    if (direction === "left" && pointerType === "w-resize") {
+      console.log("left");
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
@@ -116,7 +117,6 @@ const enhance = (VideoPlayer) => (props) => {
           resizedWidth: resizedWidth + Math.abs(diffLeft),
         });
       } else {
-        console.log("giam size");
         setResizedModal({
           ...resizedModal,
           resizedWidth: resizedWidth - Math.abs(diffLeft),
@@ -124,7 +124,7 @@ const enhance = (VideoPlayer) => (props) => {
       }
     }
 
-    if (direction === "right") {
+    if (direction === "right" && pointerType === "w-resize") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
@@ -143,7 +143,7 @@ const enhance = (VideoPlayer) => (props) => {
       }
     }
 
-    if (direction === "top") {
+    if (direction === "top" && pointerType === "s-resize") {
       if (Math.abs(startPoint.y - currentPosition.y) < 10) {
         setCurrentPosition({
           x: currentPosition.x,
@@ -162,7 +162,7 @@ const enhance = (VideoPlayer) => (props) => {
       }
     }
 
-    if (direction === "bottom") {
+    if (direction === "bottom" && pointerType === "s-resize") {
       if (Math.abs(startPoint.y - currentPosition.y) < 10) {
         setCurrentPosition({
           x: currentPosition.x,
@@ -181,7 +181,7 @@ const enhance = (VideoPlayer) => (props) => {
       }
     }
 
-    if (direction === "cross" && wrapIframeNode.style.cursor === "ne-resize") {
+    if (direction === "cross" && pointerType === "ne-resize") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
@@ -223,7 +223,7 @@ const enhance = (VideoPlayer) => (props) => {
       }
     }
 
-    if (direction === "cross" && wrapIframeNode.style.cursor === "nw-resize") {
+    if (direction === "cross" && pointerType === "nw-resize") {
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
@@ -267,7 +267,7 @@ const enhance = (VideoPlayer) => (props) => {
       onCloseModal={props.setIsOpenModal}
       setIsUpdatingPosition={setIsUpdatingPosition}
       isPressing={isPressing}
-      wrapIframeRef={wrapIframeRef}
+      pointerType={pointerType}
       resizedModal={resizedModal}
       currentPosition={currentPosition}
       setIsPressing={setIsPressing}

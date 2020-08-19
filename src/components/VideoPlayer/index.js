@@ -8,7 +8,7 @@ const VideoPlayer = (props) => {
     url,
     onCloseModal,
     isPressing,
-    wrapIframeRef,
+    pointerType,
     resizedModal,
     currentPosition,
     setIsPressing,
@@ -17,6 +17,7 @@ const VideoPlayer = (props) => {
     setIsUpdatingPosition,
   } = props;
 
+  console.log();
   return (
     <div
       className="modal__wrap"
@@ -44,13 +45,11 @@ const VideoPlayer = (props) => {
           <div id="close" onClick={() => onCloseModal(false)}></div>
         </span>
         <div
-          id="wrapIframe"
-          ref={wrapIframeRef}
           style={{
             position: "relative",
             height: resizedModal.resizedHeight,
             border: "6px solid #000",
-            cursor: "s-resize",
+            cursor: pointerType,
           }}
           // Start update
           onMouseDown={() => setIsPressing(true)}

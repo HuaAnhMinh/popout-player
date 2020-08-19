@@ -14,7 +14,6 @@ export const getEmbedUrl = (url) => {
 };
 
 export const detectDiffTwoPoint = (start, end) => {
-  console.log(start);
   const deltaX = end.x - start.x;
   const deltaY = end.y - start.y;
   let direction;
