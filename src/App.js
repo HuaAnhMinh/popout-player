@@ -5,7 +5,7 @@ import InputUrl from "./components/InputUrl";
 import VideoPlayer from "./components/VideoPlayer";
 
 const App = () => {
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState("https://www.youtube.com/watch?v=hMx3ijaf7f0");
   const [isOpenModal, setIsOpenModal] = useState(false);
 
   return (
