@@ -22,7 +22,7 @@ const VideoPlayer = (props) => {
     <div
       className="modal__wrap"
       // Update size
-      onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
+      //  onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
     >
       <div
         className="video__player__modal"

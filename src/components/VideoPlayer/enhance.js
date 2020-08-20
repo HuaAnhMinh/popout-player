@@ -29,11 +29,18 @@ const enhance = (VideoPlayer) => (props) => {
   const [pointerType, setPointerType] = useState("s-resize");
 
   useEffect(() => {
+    function handleMouseMove(e) {
+      console.log("on mouse move");
+      onDetermineCursor({ x: e.clientX, y: e.clientY });
+    }
     function handleMouseUp(e) {
       onStopPress();
     }
+
+    window.addEventListener("mousemove", handleMouseMove, true);
     window.addEventListener("mouseup", handleMouseUp, true);
     return () => {
+      window.removeEventListener("mousemove", handleMouseMove, true);
       window.removeEventListener("mouseup", handleMouseUp, true);
     };
   }, []);
@@ -99,11 +106,13 @@ const enhance = (VideoPlayer) => (props) => {
       x,
       y,
     });
-    setStartPoint({ x, y });
+    // setStartPoint({ x, y });
 
     const { diffLeft, diffTop, direction } = positionDiff;
     const { resizedWidth, resizedHeight } = resizedModal;
-    console.log(pointerType);
+    console.log(positionDiff);
+    console.log(resizedWidth);
+
     if (direction === "left" && pointerType === "w-resize") {
       console.log("left");
       if (Math.abs(startPoint.x - currentPosition.x) < 10) {
@@ -117,6 +126,8 @@ const enhance = (VideoPlayer) => (props) => {
           resizedWidth: resizedWidth + Math.abs(diffLeft),
         });
       } else {
+        console.log("giảm left");
+
         setResizedModal({
           ...resizedModal,
           resizedWidth: resizedWidth - Math.abs(diffLeft),
