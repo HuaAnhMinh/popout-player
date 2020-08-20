@@ -8,28 +8,29 @@ const VideoPlayer = (props) => {
     url,
     onCloseModal,
     isPressing,
-    containerRef,
-    wrapIframeRef,
+    pointerType,
     resizedModal,
-    onStopPress,
+    currentPosition,
     setIsPressing,
     onChangePosition,
     onDetermineCursor,
     setIsUpdatingPosition,
   } = props;
 
+  console.log();
   return (
     <div
       className="modal__wrap"
       // Update size
       onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
-      // End update
-      // onMouseUp={() => {
-      //   console.log("on stop press");
-      //   onStopPress();
-      // }}
     >
-      <div className="video__player__modal" ref={containerRef}>
+      <div
+        className="video__player__modal"
+        style={{
+          top: `${currentPosition.y}px`,
+          left: `${currentPosition.x}px`,
+        }}
+      >
         <span
           className="header"
           // Update position
@@ -44,13 +45,11 @@ const VideoPlayer = (props) => {
           <div id="close" onClick={() => onCloseModal(false)}></div>
         </span>
         <div
-          id="wrapIframe"
-          ref={wrapIframeRef}
           style={{
             position: "relative",
             height: resizedModal.resizedHeight,
             border: "6px solid #000",
-            cursor: "s-resize",
+            cursor: pointerType,
           }}
           // Start update
           onMouseDown={() => setIsPressing(true)}
@@ -68,11 +67,6 @@ const VideoPlayer = (props) => {
             src={url}
             frameBorder="0"
             scrolling="0"
-            // End update
-            onMouseEnter={() => {
-              console.log("on mouse enter iframe");
-              onStopPress();
-            }}
           ></iframe>
         </div>
       </div>
