@@ -2,6 +2,7 @@ import React from "react";
 
 import "./style.css";
 import enhance from "./enhance";
+import { DEFAULT_WIDTH, DEFAULT_HEIGHT } from "../../utils/constants";
 
 const VideoPlayer = (props) => {
   const {
@@ -11,57 +12,39 @@ const VideoPlayer = (props) => {
     pointerType,
     resizedModal,
     currentPosition,
-    setIsPressing,
-    onChangePosition,
-    onDetermineCursor,
-    setIsUpdatingPosition,
+    onStartPress,
   } = props;
 
-  console.log();
   return (
-    <div
-      className="modal__wrap"
-      // Update size
-      //  onMouseMove={({ clientX: x, clientY: y }) => onDetermineCursor({ x, y })}
-    >
+    <div className="modal__wrap">
       <div
         className="video__player__modal"
         style={{
-          top: `${currentPosition.y}px`,
-          left: `${currentPosition.x}px`,
+          top: currentPosition.y,
+          left: currentPosition.x,
         }}
+        onMouseDown={(e) => onStartPress(e)}
       >
-        <span
-          className="header"
-          // Update position
-          onMouseMove={({ clientX: x, clientY: y }) => {
-            if (!isPressing) return;
-            setIsUpdatingPosition(true);
-            onChangePosition({ x, y });
-          }}
-          // Start update
-          onMouseDown={() => setIsPressing(true)}
-        >
+        <span className="header">
           <div id="close" onClick={() => onCloseModal(false)}></div>
         </span>
         <div
           style={{
             position: "relative",
+            width: resizedModal.resizedWidth,
             height: resizedModal.resizedHeight,
+            minWidth: DEFAULT_WIDTH,
+            minHeight: DEFAULT_HEIGHT,
             border: "6px solid #000",
             cursor: pointerType,
           }}
-          // Start update
-          onMouseDown={() => setIsPressing(true)}
         >
           <iframe
-            width={resizedModal.resizedWidth}
-            height={resizedModal.resizedHeight}
             title="video player"
             style={{
               borderWidth: "0px",
-              // minWidth: "340px",
-              // minHeight: "200px",
+              width: "100%",
+              height: "100%",
               pointerEvents: isPressing ? "none" : "initial",
             }}
             src={url}

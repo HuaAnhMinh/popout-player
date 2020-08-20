@@ -18,9 +18,11 @@ export const detectDiffTwoPoint = (start, end) => {
   const deltaY = end.y - start.y;
   let direction;
 
+  console.log("deltaX", deltaX, "deltaY", deltaY);
   if (Math.abs(deltaX) === Math.abs(deltaY)) {
     direction = "cross";
-  } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+  }
+  if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
     direction = "right";
   } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
     direction = "left";
