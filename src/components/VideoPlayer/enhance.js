@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import {
   getEmbedUrl,
@@ -14,10 +14,10 @@ import {
 } from "../../utils/constants";
 
 const enhance = (VideoPlayer) => (props) => {
-  const [isUpdatingPosition, setIsUpdatingPosition] = useState(false);
-  const [isPressing, setIsPressing] = useState(false);
-  const [isMarkStartPoint, setIsMarkStartPoint] = useState(false);
-  const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
+  const isUpdatingPosition = useRef(false);
+  const isPressing = useRef(false);
+  const isMarkStartPoint = useRef(false);
+  const startPoint = useRef({ x: 0, y: 0 });
   const [currentPosition, setCurrentPosition] = useState({
     x: DEFAULT_LEFT,
     y: DEFAULT_TOP,
@@ -29,14 +29,36 @@ const enhance = (VideoPlayer) => (props) => {
   const [pointerType, setPointerType] = useState("s-resize");
 
   useEffect(() => {
+    function handleMouseMove(e) {
+      onDetermineCursor({ x: e.clientX, y: e.clientY });
+    }
     function handleMouseUp(e) {
       onStopPress();
     }
+
+    window.addEventListener("mousemove", handleMouseMove, true);
     window.addEventListener("mouseup", handleMouseUp, true);
     return () => {
+      window.removeEventListener("mousemove", handleMouseMove, true);
       window.removeEventListener("mouseup", handleMouseUp, true);
     };
-  }, []);
+  }, [resizedModal, currentPosition, pointerType]);
+
+  function setIsPressing(val) {
+    isPressing.current = val;
+  }
+
+  function setIsMarkStartPoint(val) {
+    isMarkStartPoint.current = val;
+  }
+
+  function setStartPoint(val) {
+    startPoint.current = val;
+  }
+
+  function setIsUpdatingPosition(val) {
+    isUpdatingPosition.current = val;
+  }
 
   const onStopPress = () => {
     setIsPressing(false);
@@ -45,9 +67,21 @@ const enhance = (VideoPlayer) => (props) => {
     setIsUpdatingPosition(false);
   };
 
+  const onStartPress = (e) => {
+    const isHeaderArea = document
+      .getElementsByClassName("header")[0]
+      .contains(e.target);
+
+    setIsPressing(true);
+    if (isHeaderArea) {
+      setIsUpdatingPosition(true);
+      return;
+    }
+  };
+
   const onCalculateDiff = ({ x, y }) => {
-    if (isMarkStartPoint) {
-      return detectDiffTwoPoint(startPoint, { x, y });
+    if (isMarkStartPoint.current) {
+      return detectDiffTwoPoint(startPoint.current, { x, y });
     }
 
     setStartPoint({ x, y });
@@ -80,14 +114,18 @@ const enhance = (VideoPlayer) => (props) => {
       setPointerType("s-resize");
     }
 
-    if (!isPressing || isUpdatingPosition) return;
+    if (!isPressing.current) return;
+    if (isUpdatingPosition.current) {
+      onChangePosition({ x, y });
+      return;
+    }
     onResizeModal({ x, y });
   };
 
   const onChangePosition = ({ x, y }) => {
     const positionDiff = onCalculateDiff({ x, y });
-
     setStartPoint({ x, y });
+
     setCurrentPosition({
       x: currentPosition.x + positionDiff.diffLeft,
       y: currentPosition.y + positionDiff.diffTop,
@@ -103,10 +141,12 @@ const enhance = (VideoPlayer) => (props) => {
 
     const { diffLeft, diffTop, direction } = positionDiff;
     const { resizedWidth, resizedHeight } = resizedModal;
-    console.log(pointerType);
+
     if (direction === "left" && pointerType === "w-resize") {
-      console.log("left");
-      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -125,7 +165,11 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "right" && pointerType === "w-resize") {
-      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
+        debugger;
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -144,7 +188,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "top" && pointerType === "s-resize") {
-      if (Math.abs(startPoint.y - currentPosition.y) < 10) {
+      if (
+        Math.abs(startPoint.current.y - currentPosition.y) <
+        resizedHeight / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -163,7 +210,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "bottom" && pointerType === "s-resize") {
-      if (Math.abs(startPoint.y - currentPosition.y) < 10) {
+      if (
+        Math.abs(startPoint.current.y - currentPosition.y) <
+        resizedHeight / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -182,7 +232,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "cross" && pointerType === "ne-resize") {
-      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -224,7 +277,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "cross" && pointerType === "nw-resize") {
-      if (Math.abs(startPoint.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y + positionDiff.diffTop,
@@ -265,15 +321,11 @@ const enhance = (VideoPlayer) => (props) => {
     <VideoPlayer
       url={getEmbedUrl(props.url)}
       onCloseModal={props.setIsOpenModal}
-      setIsUpdatingPosition={setIsUpdatingPosition}
       isPressing={isPressing}
       pointerType={pointerType}
       resizedModal={resizedModal}
       currentPosition={currentPosition}
-      setIsPressing={setIsPressing}
-      onChangePosition={onChangePosition}
-      onResizeModal={onResizeModal}
-      onDetermineCursor={onDetermineCursor}
+      onStartPress={onStartPress}
     />
   );
 };
