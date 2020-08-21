@@ -142,9 +142,11 @@ const enhance = (VideoPlayer) => (props) => {
     const { diffLeft, diffTop, direction } = positionDiff;
     const { resizedWidth, resizedHeight } = resizedModal;
 
-    console.log("direction=", direction);
     if (direction === "left" && pointerType === "w-resize") {
-      if (Math.abs(startPoint.current.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -163,7 +165,11 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "right" && pointerType === "w-resize") {
-      if (Math.abs(startPoint.current.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
+        debugger;
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -182,8 +188,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "top" && pointerType === "s-resize") {
-      debugger;
-      if (Math.abs(startPoint.current.y - currentPosition.y) < 10) {
+      if (
+        Math.abs(startPoint.current.y - currentPosition.y) <
+        resizedHeight / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -202,7 +210,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "bottom" && pointerType === "s-resize") {
-      if (Math.abs(startPoint.current.y - currentPosition.y) < 10) {
+      if (
+        Math.abs(startPoint.current.y - currentPosition.y) <
+        resizedHeight / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x,
           y: currentPosition.y + positionDiff.diffTop,
@@ -221,7 +232,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "cross" && pointerType === "ne-resize") {
-      if (Math.abs(startPoint.current.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,
@@ -263,7 +277,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (direction === "cross" && pointerType === "nw-resize") {
-      if (Math.abs(startPoint.current.x - currentPosition.x) < 10) {
+      if (
+        Math.abs(startPoint.current.x - currentPosition.x) <
+        resizedWidth / 2
+      ) {
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y + positionDiff.diffTop,

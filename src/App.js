@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 
-import InputUrl from "./components/InputUrl";
+import SubmitText from "./components/SubmitText";
 import VideoPlayer from "./components/VideoPlayer";
 
 const App = () => {
@@ -10,11 +10,11 @@ const App = () => {
 
   return (
     <div className="App">
-      <InputUrl
-        url={url}
-        isOpenModal={isOpenModal}
-        setUrl={setUrl}
-        setIsOpenModal={setIsOpenModal}
+      <SubmitText
+        text={url}
+        isDisabled={isOpenModal}
+        updateText={setUrl}
+        setOpenModalOver={setIsOpenModal}
       />
       {isOpenModal && <VideoPlayer url={url} setIsOpenModal={setIsOpenModal} />}
     </div>

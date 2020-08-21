@@ -2,7 +2,7 @@ import React from "react";
 
 import "./style.css";
 import enhance from "./enhance";
-import { DEFAULT_WIDTH, DEFAULT_HEIGHT } from "../../utils/constants";
+import { MIN_WIDTH, MIN_HEIGHT } from "../../utils/constants";
 
 const VideoPlayer = (props) => {
   const {
@@ -33,8 +33,8 @@ const VideoPlayer = (props) => {
             position: "relative",
             width: resizedModal.resizedWidth,
             height: resizedModal.resizedHeight,
-            // minWidth: DEFAULT_WIDTH,
-            // minHeight: DEFAULT_HEIGHT,
+            minWidth: MIN_WIDTH,
+            minHeight: MIN_HEIGHT,
             border: "6px solid #000",
             cursor: pointerType,
           }}
@@ -45,7 +45,7 @@ const VideoPlayer = (props) => {
               borderWidth: "0px",
               width: "100%",
               height: "100%",
-              pointerEvents: isPressing ? "none" : "initial",
+              pointerEvents: isPressing.current ? "none" : "initial",
             }}
             src={url}
             frameBorder="0"
