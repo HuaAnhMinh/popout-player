@@ -33,8 +33,8 @@ const VideoPlayer = (props) => {
             position: "relative",
             width: resizedModal.resizedWidth,
             height: resizedModal.resizedHeight,
-            minWidth: DEFAULT_WIDTH,
-            minHeight: DEFAULT_HEIGHT,
+            // minWidth: DEFAULT_WIDTH,
+            // minHeight: DEFAULT_HEIGHT,
             border: "6px solid #000",
             cursor: pointerType,
           }}
