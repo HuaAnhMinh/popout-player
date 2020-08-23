@@ -1,10 +1,10 @@
 import React from "react";
 
 const TextInput = (props) => {
-  const { onChangeText, value, isDisabled } = props;
+  const { value, isDisabled, placeholderTxt, onChangeText } = props;
   return (
     <input
-      placeholder="Youtube URL"
+      placeholder={placeholderTxt}
       onChange={(event) => onChangeText(event.target.value)}
       value={value}
       disabled={isDisabled}

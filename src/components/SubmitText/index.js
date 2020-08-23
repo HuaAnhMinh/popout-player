@@ -7,7 +7,14 @@ import Button from "./components/button";
 import "./style.css";
 
 const SubmitText = (props) => {
-  const { text, isDisabled, updateText, setOpenModalOver } = props;
+  const {
+    text,
+    isDisabled,
+    placeholderTxt,
+    btnLabel,
+    updateText,
+    setOpenModalOver,
+  } = props;
   const [errorMsg, setErrorMsg] = useState("");
 
   const onChangeText = (url) => {
@@ -28,12 +35,14 @@ const SubmitText = (props) => {
     <div className="input__wrap">
       <div>
         <TextInput
-          onChangeText={onChangeText}
           value={text}
           isDisabled={isDisabled}
+          placeholderTxt={placeholderTxt}
+          onChangeText={onChangeText}
         />
         <Button
           isDisabled={text.length === 0 || errorMsg || isDisabled}
+          btnLabel={btnLabel}
           onClickBtn={onOpenModal}
         />
       </div>

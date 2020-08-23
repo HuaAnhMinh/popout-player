@@ -18,6 +18,7 @@ const enhance = (VideoPlayer) => (props) => {
   const isPressing = useRef(false);
   const isMarkStartPoint = useRef(false);
   const startPoint = useRef({ x: 0, y: 0 });
+  const currentPointer = useRef("");
   const [currentPosition, setCurrentPosition] = useState({
     x: DEFAULT_LEFT,
     y: DEFAULT_TOP,
@@ -60,11 +61,16 @@ const enhance = (VideoPlayer) => (props) => {
     isUpdatingPosition.current = val;
   }
 
+  function setCurrentPointer(val) {
+    currentPointer.current = val;
+  }
+
   const onStopPress = () => {
     setIsPressing(false);
     setStartPoint({ x: 0, y: 0 });
     setIsMarkStartPoint(false);
     setIsUpdatingPosition(false);
+    setCurrentPointer("");
   };
 
   const onStartPress = (e) => {
@@ -73,6 +79,7 @@ const enhance = (VideoPlayer) => (props) => {
       .contains(e.target);
 
     setIsPressing(true);
+    setCurrentPointer(pointerType);
     if (isHeaderArea) {
       setIsUpdatingPosition(true);
       return;
@@ -137,6 +144,7 @@ const enhance = (VideoPlayer) => (props) => {
       x,
       y,
     });
+    if (pointerType !== currentPointer.current) return;
     setStartPoint({ x, y });
 
     const { diffLeft, diffTop, direction } = positionDiff;
@@ -169,7 +177,6 @@ const enhance = (VideoPlayer) => (props) => {
         Math.abs(startPoint.current.x - currentPosition.x) <
         resizedWidth / 2
       ) {
-        debugger;
         setCurrentPosition({
           x: currentPosition.x + positionDiff.diffLeft,
           y: currentPosition.y,

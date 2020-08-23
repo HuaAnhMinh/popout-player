@@ -19,7 +19,6 @@ export const detectDiffTwoPoint = (start, end) => {
   let direction;
 
   console.log("deltaX", deltaX, "deltaY", deltaY);
-
   if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
     direction = "right";
   } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
@@ -30,6 +29,8 @@ export const detectDiffTwoPoint = (start, end) => {
     direction = "top";
   } else if (Math.abs(deltaY) === Math.abs(deltaX) && deltaX !== 0) {
     direction = "cross";
+  } else {
+    direction = "";
   }
 
   return { diffLeft: deltaX, diffTop: deltaY, direction };
@@ -146,5 +147,3 @@ export const isMovingOnVertical = (
     }
   }
 };
-
-export const detectNewsize = (currentPoint, positionDiff) => {};
