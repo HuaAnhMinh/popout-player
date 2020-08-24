@@ -13,6 +13,8 @@ const App = () => {
       <SubmitText
         text={url}
         isDisabled={isOpenModal}
+        placeholderTxt="Youtube Url"
+        btnLabel="Play"
         updateText={setUrl}
         setOpenModalOver={setIsOpenModal}
       />
