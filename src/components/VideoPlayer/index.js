@@ -16,12 +16,18 @@ const VideoPlayer = (props) => {
   } = props;
 
   return (
-    <div className="modal__wrap">
+    <div
+      className="modal__wrap"
+      style={{
+        cursor: pointerType,
+      }}
+    >
       <div
         className="video__player__modal"
         style={{
           top: currentPosition.y,
           left: currentPosition.x,
+          cursor: pointerType,
         }}
         onMouseDown={(e) => onStartPress(e)}
       >
@@ -36,7 +42,6 @@ const VideoPlayer = (props) => {
             minWidth: MIN_WIDTH,
             minHeight: MIN_HEIGHT,
             border: "6px solid #000",
-            cursor: pointerType,
           }}
         >
           <iframe

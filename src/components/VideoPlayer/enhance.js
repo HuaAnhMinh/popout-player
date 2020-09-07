@@ -27,7 +27,7 @@ const enhance = (VideoPlayer) => (props) => {
     resizedWidth: DEFAULT_WIDTH,
     resizedHeight: DEFAULT_HEIGHT,
   });
-  const [pointerType, setPointerType] = useState("s-resize");
+  const [pointerType, setPointerType] = useState("default");
 
   useEffect(() => {
     function handleMouseMove(e) {
@@ -105,20 +105,51 @@ const enhance = (VideoPlayer) => (props) => {
       cornerNum: "1",
     };
 
-    if (isMovingOnCorner(param)) {
-      setPointerType("nw-resize");
-    } else if (isMovingOnCorner({ ...param, cornerNum: "2" })) {
-      setPointerType("ne-resize");
-    } else if (isMovingOnCorner({ ...param, cornerNum: "3" })) {
-      setPointerType("ne-resize");
-    } else if (isMovingOnCorner({ ...param, cornerNum: "4" })) {
-      setPointerType("nw-resize");
-    } else if (
-      isMovingOnVertical(currentPoint, currentPosition, resizedModal)
-    ) {
-      setPointerType("w-resize");
-    } else {
-      setPointerType("s-resize");
+    const bottomRight = {
+      x: currentPosition.x + resizedModal.resizedWidth + 10,
+      y: currentPosition.y + resizedModal.resizedHeight + 10,
+    };
+
+    const topRight = {
+      x: currentPosition.x + resizedModal.resizedWidth + 10,
+      y: currentPosition.y,
+    };
+
+    const bottomLeft = {
+      x: currentPosition.x,
+      y: currentPosition.y + resizedModal.resizedHeight + 10,
+    };
+
+    if (currentPoint.x >= currentPosition.x - 10 && currentPoint.x <= currentPosition.x &&
+      currentPoint.y >= currentPosition.y - 10 && currentPoint.y <= currentPosition.y) {
+      setPointerType('nwse-resize');
+    }
+    else if (currentPoint.x >= bottomRight.x && currentPoint.x <= bottomRight.x + 10 &&
+      currentPoint.y >= bottomRight.y && currentPoint.y <= bottomRight.y + 10) {
+      setPointerType('nwse-resize');
+    }
+    else if (currentPoint.x <= topRight.x + 10 && currentPoint.x >= topRight.x &&
+      currentPoint.y >= topRight.y - 10 && currentPoint.y <= topRight.y) {
+      setPointerType('nesw-resize');
+    }
+    else if (currentPoint.x <= bottomLeft.x && currentPoint.x >= bottomLeft.x - 10 &&
+      currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
+      setPointerType('nesw-resize');
+    }
+    else if (currentPoint.y <= currentPosition.y && currentPoint.y >= currentPosition.y - 10) {
+      setPointerType('ns-resize');
+    }
+    else if (currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
+      setPointerType('ns-resize');
+    }
+    else if (currentPoint.x <= currentPosition.x && currentPoint.x >= currentPosition.x - 10) {
+      setPointerType('ew-resize');
+    }
+    else if (currentPoint.x >= topRight.x && currentPoint.x <= topRight.x + 10) {
+      setPointerType('ew-resize');
+    }
+    else {
+      setPointerType('default');
     }
 
     if (!isPressing.current) return;
