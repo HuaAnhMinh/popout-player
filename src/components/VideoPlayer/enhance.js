@@ -11,6 +11,8 @@ import {
   DEFAULT_LEFT,
   DEFAULT_WIDTH,
   DEFAULT_HEIGHT,
+  MIN_HEIGHT,
+  MIN_WIDTH,
 } from "../../utils/constants";
 
 const enhance = (VideoPlayer) => (props) => {
@@ -179,10 +181,10 @@ const enhance = (VideoPlayer) => (props) => {
     }
 
     if (!isPressing.current) return;
-    if (isUpdatingPosition.current) {
-      onChangePosition({ x, y });
-      return;
-    }
+    // if (isUpdatingPosition.current) {
+    //   onChangePosition({ x, y });
+    //   return;
+    // }
     if (isPressing.current && resizeType.current) {
       onResizeModal({ x, y });
     }
@@ -198,11 +200,49 @@ const enhance = (VideoPlayer) => (props) => {
     });
   };
 
+  useEffect(() => {
+    
+  }, [currentPosition.y]);
+
   const onResizeModal = ({ x, y }) => {
+    let newHeight, newWidth;
+
     switch (resizeType.current) {
       case 'top':
+        newHeight = y <= currentPosition.y ?
+          resizedModal.resizedHeight + currentPosition.y - y
+          :
+          resizedModal.resizedHeight - (y - currentPosition.y);
+
+        if (newHeight > MIN_HEIGHT) {
+          setCurrentPosition((prev) => ({
+            ...prev,
+            y
+          }));
+        }
+
+        setResizedModal((prev) => ({
+          ...prev,
+          resizedHeight: newHeight
+        }));
         break;
       case 'left':
+        newWidth = x <= currentPosition.x ?
+          resizedModal.resizedWidth + currentPosition.x - x
+          :
+          resizedModal.resizedWidth - (x - currentPosition.x);
+
+        if (newWidth > MIN_WIDTH) {
+          setCurrentPosition((prev) => ({
+            ...prev,
+            x
+          }));
+        }
+
+        setResizedModal((prev) => ({
+          ...prev,
+          resizedWidth: newWidth
+        }));
         break;
       case 'right':
         setResizedModal((prev) => ({
