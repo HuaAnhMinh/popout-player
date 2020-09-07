@@ -15,6 +15,7 @@ import {
 
 const enhance = (VideoPlayer) => (props) => {
   const isUpdatingPosition = useRef(false);
+  const resizeType = useRef('');
   const isPressing = useRef(false);
   const isMarkStartPoint = useRef(false);
   const startPoint = useRef({ x: 0, y: 0 });
@@ -34,14 +35,20 @@ const enhance = (VideoPlayer) => (props) => {
       onDetermineCursor({ x: e.clientX, y: e.clientY });
     }
     function handleMouseUp(e) {
-      onStopPress();
+      isPressing.current = false;
+    }
+    function handleMouseDown(e) {
+      isPressing.current = true;
     }
 
     window.addEventListener("mousemove", handleMouseMove, true);
     window.addEventListener("mouseup", handleMouseUp, true);
+    window.addEventListener("mousedown", handleMouseDown, true);
+
     return () => {
       window.removeEventListener("mousemove", handleMouseMove, true);
       window.removeEventListener("mouseup", handleMouseUp, true);
+      window.removeEventListener("mousedown", handleMouseDown, true);
     };
   }, [resizedModal, currentPosition, pointerType]);
 
@@ -120,36 +127,55 @@ const enhance = (VideoPlayer) => (props) => {
       y: currentPosition.y + resizedModal.resizedHeight + 10,
     };
 
+    // top left
     if (currentPoint.x >= currentPosition.x - 10 && currentPoint.x <= currentPosition.x &&
       currentPoint.y >= currentPosition.y - 10 && currentPoint.y <= currentPosition.y) {
       setPointerType('nwse-resize');
+      resizeType.current = 'top-left';
     }
+    // bottom right
     else if (currentPoint.x >= bottomRight.x && currentPoint.x <= bottomRight.x + 10 &&
       currentPoint.y >= bottomRight.y && currentPoint.y <= bottomRight.y + 10) {
       setPointerType('nwse-resize');
+      resizeType.current = 'bottom-right';
     }
+    // top right
     else if (currentPoint.x <= topRight.x + 10 && currentPoint.x >= topRight.x &&
       currentPoint.y >= topRight.y - 10 && currentPoint.y <= topRight.y) {
       setPointerType('nesw-resize');
+      resizeType.current = 'top-right';
     }
+    // bottom left
     else if (currentPoint.x <= bottomLeft.x && currentPoint.x >= bottomLeft.x - 10 &&
       currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
       setPointerType('nesw-resize');
+      resizeType.current = 'bottom-left';
     }
+    // top
     else if (currentPoint.y <= currentPosition.y && currentPoint.y >= currentPosition.y - 10) {
       setPointerType('ns-resize');
+      resizeType.current = 'top';
     }
+    // bottom
     else if (currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
       setPointerType('ns-resize');
+      resizeType.current = 'bottom';
     }
+    // left
     else if (currentPoint.x <= currentPosition.x && currentPoint.x >= currentPosition.x - 10) {
       setPointerType('ew-resize');
+      resizeType.current = 'left';
     }
+    // right
     else if (currentPoint.x >= topRight.x && currentPoint.x <= topRight.x + 10) {
       setPointerType('ew-resize');
+      resizeType.current = 'right';
     }
     else {
-      setPointerType('default');
+      if (!isPressing.current) {
+        setPointerType('default');
+      }
+      // resizeType = '';
     }
 
     if (!isPressing.current) return;
@@ -157,7 +183,9 @@ const enhance = (VideoPlayer) => (props) => {
       onChangePosition({ x, y });
       return;
     }
-    onResizeModal({ x, y });
+    if (isPressing.current && resizeType.current) {
+      onResizeModal({ x, y });
+    }
   };
 
   const onChangePosition = ({ x, y }) => {
@@ -171,187 +199,31 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onResizeModal = ({ x, y }) => {
-    const positionDiff = onCalculateDiff({
-      x,
-      y,
-    });
-    if (pointerType !== currentPointer.current) return;
-    setStartPoint({ x, y });
-
-    const { diffLeft, diffTop, direction } = positionDiff;
-    const { resizedWidth, resizedHeight } = resizedModal;
-
-    if (direction === "left" && pointerType === "w-resize") {
-      if (
-        Math.abs(startPoint.current.x - currentPosition.x) <
-        resizedWidth / 2
-      ) {
-        setCurrentPosition({
-          x: currentPosition.x + positionDiff.diffLeft,
-          y: currentPosition.y,
-        });
-
-        setResizedModal({
-          ...resizedModal,
-          resizedWidth: resizedWidth + Math.abs(diffLeft),
-        });
-      } else {
-        setResizedModal({
-          ...resizedModal,
-          resizedWidth: resizedWidth - Math.abs(diffLeft),
-        });
-      }
-    }
-
-    if (direction === "right" && pointerType === "w-resize") {
-      if (
-        Math.abs(startPoint.current.x - currentPosition.x) <
-        resizedWidth / 2
-      ) {
-        setCurrentPosition({
-          x: currentPosition.x + positionDiff.diffLeft,
-          y: currentPosition.y,
-        });
-
-        setResizedModal({
-          ...resizedModal,
-          resizedWidth: resizedWidth - Math.abs(diffLeft),
-        });
-      } else {
-        setResizedModal({
-          ...resizedModal,
-          resizedWidth: resizedWidth + Math.abs(diffLeft),
-        });
-      }
-    }
-
-    if (direction === "top" && pointerType === "s-resize") {
-      if (
-        Math.abs(startPoint.current.y - currentPosition.y) <
-        resizedHeight / 2
-      ) {
-        setCurrentPosition({
-          x: currentPosition.x,
-          y: currentPosition.y + positionDiff.diffTop,
-        });
-
-        setResizedModal({
-          ...resizedModal,
-          resizedHeight: resizedHeight + Math.abs(diffTop),
-        });
-      } else {
-        setResizedModal({
-          ...resizedModal,
-          resizedHeight: resizedHeight - Math.abs(diffTop),
-        });
-      }
-    }
-
-    if (direction === "bottom" && pointerType === "s-resize") {
-      if (
-        Math.abs(startPoint.current.y - currentPosition.y) <
-        resizedHeight / 2
-      ) {
-        setCurrentPosition({
-          x: currentPosition.x,
-          y: currentPosition.y + positionDiff.diffTop,
-        });
-
-        setResizedModal({
-          ...resizedModal,
-          resizedHeight: resizedHeight - Math.abs(diffTop),
-        });
-      } else {
-        setResizedModal({
-          ...resizedModal,
-          resizedHeight: resizedHeight + Math.abs(diffTop),
-        });
-      }
-    }
-
-    if (direction === "cross" && pointerType === "ne-resize") {
-      if (
-        Math.abs(startPoint.current.x - currentPosition.x) <
-        resizedWidth / 2
-      ) {
-        setCurrentPosition({
-          x: currentPosition.x + positionDiff.diffLeft,
-          y: currentPosition.y,
-        });
-
-        if (diffTop > 0) {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth + Math.abs(diffLeft),
-            resizedHeight: resizedHeight + Math.abs(diffTop),
-          });
-        } else {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth - Math.abs(diffLeft),
-            resizedHeight: resizedHeight - Math.abs(diffTop),
-          });
-        }
-      } else {
-        setCurrentPosition({
-          x: currentPosition.x,
-          y: currentPosition.y + positionDiff.diffTop,
-        });
-
-        if (diffTop > 0) {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth - Math.abs(diffLeft),
-            resizedHeight: resizedHeight - Math.abs(diffTop),
-          });
-        } else {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth + Math.abs(diffLeft),
-            resizedHeight: resizedHeight + Math.abs(diffTop),
-          });
-        }
-      }
-    }
-
-    if (direction === "cross" && pointerType === "nw-resize") {
-      if (
-        Math.abs(startPoint.current.x - currentPosition.x) <
-        resizedWidth / 2
-      ) {
-        setCurrentPosition({
-          x: currentPosition.x + positionDiff.diffLeft,
-          y: currentPosition.y + positionDiff.diffTop,
-        });
-
-        if (diffLeft > 0 && diffTop > 0) {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth - Math.abs(diffLeft),
-            resizedHeight: resizedHeight - Math.abs(diffTop),
-          });
-        } else {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth + Math.abs(diffLeft),
-            resizedHeight: resizedHeight + Math.abs(diffTop),
-          });
-        }
-      } else {
-        if (diffLeft > 0 && diffTop > 0) {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth + Math.abs(diffLeft),
-            resizedHeight: resizedHeight + Math.abs(diffTop),
-          });
-        } else {
-          setResizedModal({
-            ...resizedModal,
-            resizedWidth: resizedWidth - Math.abs(diffLeft),
-            resizedHeight: resizedHeight - Math.abs(diffTop),
-          });
-        }
-      }
+    switch (resizeType.current) {
+      case 'top':
+        break;
+      case 'left':
+        break;
+      case 'right':
+        setResizedModal((prev) => ({
+          ...prev,
+          resizedWidth: x >= currentPosition.x + prev.resizedWidth + 10 ?
+            prev.resizedWidth + (x - (currentPosition.x + prev.resizedWidth + 10))
+            :
+            x - currentPosition.x
+        }));
+        break;
+      case 'bottom':
+        setResizedModal((prev) => ({
+          ...prev,
+          resizedHeight: y >= currentPosition.y + prev.resizedHeight + 10 ?
+            prev.resizedHeight + (y - (currentPosition.y + prev.resizedHeight + 10))
+            :
+            y - currentPosition.y
+        }));
+        break;
+      default:
+        break;
     }
   };
 
