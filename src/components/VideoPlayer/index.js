@@ -26,6 +26,10 @@ const VideoPlayer = (props) => {
           top: frameInfo.y,
           left: frameInfo.x,
           cursor: pointerType,
+          width: frameInfo.width,
+          height: frameInfo.height,
+          minWidth: MIN_WIDTH,
+          minHeight: MIN_HEIGHT,
         }}
       >
         <span className="header">
@@ -34,7 +38,6 @@ const VideoPlayer = (props) => {
         <div
           style={{
             position: "relative",
-            border: "6px solid #000",
             cursor: pointerType,
             width: frameInfo.width,
             height: frameInfo.height,

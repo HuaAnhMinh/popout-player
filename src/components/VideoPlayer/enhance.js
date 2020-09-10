@@ -12,14 +12,12 @@ import {
   DEFAULT_HEIGHT,
   MIN_HEIGHT,
   MIN_WIDTH,
+  INTERACTIONS
 } from "../../utils/constants";
 
 const enhance = (VideoPlayer) => (props) => {
-  const isUpdatingPosition = useRef(false);
-
-  const resizeType = useRef('');
-
   const isPressing = useRef(false);
+  const interaction = useRef(INTERACTIONS.NONE);
 
   const [frameInfo, setFrameInfo] = useState({
     x: DEFAULT_LEFT,
@@ -32,13 +30,12 @@ const enhance = (VideoPlayer) => (props) => {
 
   useEffect(() => {
     function handleMouseMove(e) {
-      onDetermineCursor({ x: e.clientX, y: e.clientY });
+      onHandleInteraction({ x: e.clientX, y: e.clientY });
     }
 
     function handleMouseUp(e) {
       isPressing.current = false;
-      resizeType.current = '';
-      isUpdatingPosition.current = false;
+      interaction.current = INTERACTIONS.NONE;
     }
 
     function handleMouseDown(e) {
@@ -54,92 +51,91 @@ const enhance = (VideoPlayer) => (props) => {
       window.removeEventListener("mouseup", handleMouseUp, true);
       window.removeEventListener("mousedown", handleMouseDown, true);
     };
-  }, [frameInfo, pointerType]);
+  }, [frameInfo.x, frameInfo.y, frameInfo.width, frameInfo.height, pointerType]);
 
-  const onDetermineCursor = ({ x, y }) => {
+  const onHandleInteraction = ({ x, y }) => {
     const currentPoint = { x, y };
 
+    if (isPressing.current && interaction.current !== INTERACTIONS.NONE) {
+      onResizeModal({ x, y });
+      if (interaction.current === INTERACTIONS.MOVING) {
+        onChangePosition({ x, y });
+      }
+      else {
+        onResizeModal({ x, y });
+      }
+      return;
+    }
+
     const bottomRight = {
-      x: frameInfo.x + frameInfo.width + 10,
-      y: frameInfo.y + frameInfo.height + 10,
+      x: frameInfo.x + frameInfo.width,
+      y: frameInfo.y + frameInfo.height,
     };
 
     const topRight = {
-      x: frameInfo.x + frameInfo.width + 10,
+      x: frameInfo.x + frameInfo.width,
       y: frameInfo.y,
     };
 
     const bottomLeft = {
       x: frameInfo.x,
-      y: frameInfo.y + frameInfo.height + 10,
+      y: frameInfo.y + frameInfo.height,
     };
 
     // top left
     if (currentPoint.x >= frameInfo.x - 10 && currentPoint.x <= frameInfo.x &&
       currentPoint.y >= frameInfo.y - 10 && currentPoint.y <= frameInfo.y) {
       setPointerType('nwse-resize');
-      resizeType.current = 'top-left';
+      interaction.current = INTERACTIONS.RESIZE_TOP_LEFT;
     }
     // bottom right
     else if (currentPoint.x >= bottomRight.x && currentPoint.x <= bottomRight.x + 10 &&
       currentPoint.y >= bottomRight.y && currentPoint.y <= bottomRight.y + 10) {
       setPointerType('nwse-resize');
-      resizeType.current = 'bottom-right';
+      interaction.current = INTERACTIONS.RESIZE_BOTTOM_RIGHT;
     }
     // top right
     else if (currentPoint.x <= topRight.x + 10 && currentPoint.x >= topRight.x &&
       currentPoint.y >= topRight.y - 10 && currentPoint.y <= topRight.y) {
       setPointerType('nesw-resize');
-      resizeType.current = 'top-right';
+      interaction.current = INTERACTIONS.RESIZE_TOP_RIGHT;
     }
     // bottom left
     else if (currentPoint.x <= bottomLeft.x && currentPoint.x >= bottomLeft.x - 10 &&
       currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
       setPointerType('nesw-resize');
-      resizeType.current = 'bottom-left';
+      interaction.current = INTERACTIONS.RESIZE_BOTTOM_LEFT;
     }
     // top
     else if (currentPoint.y <= frameInfo.y && currentPoint.y >= frameInfo.y - 10) {
       setPointerType('ns-resize');
-      resizeType.current = 'top';
+      interaction.current = INTERACTIONS.RESIZE_TOP;
     }
     // bottom
     else if (currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
       setPointerType('ns-resize');
-      resizeType.current = 'bottom';
+      interaction.current = INTERACTIONS.RESIZE_BOTTOM;
     }
     // left
     else if (currentPoint.x <= frameInfo.x && currentPoint.x >= frameInfo.x - 10) {
       setPointerType('ew-resize');
-      resizeType.current = 'left';
+      interaction.current = INTERACTIONS.RESIZE_LEFT;
     }
     // right
     else if (currentPoint.x >= topRight.x && currentPoint.x <= topRight.x + 10) {
+      console.log('right');
       setPointerType('ew-resize');
-      resizeType.current = 'right';
+      interaction.current = INTERACTIONS.RESIZE_RIGHT;
     }
     else if (currentPoint.x >= frameInfo.x + 10 && currentPoint.x <= topRight.x - 10 &&
-      currentPoint.y >= frameInfo.y + 10 && currentPoint.y <= bottomRight.y - 10 &&
-      !resizeType && isPressing.current) {
+      currentPoint.y >= frameInfo.y + 10 && currentPoint.y <= bottomRight.y - 10) {
       console.log('Here');
       setPointerType('move');
-      isUpdatingPosition.current = true;
+      interaction.current = INTERACTIONS.MOVING;
     }
-    else if (!isPressing.current) {
+    else {
       setPointerType('default');
-    }
-
-    if (!isPressing.current) {
-      resizeType.current = '';
-      isUpdatingPosition.current = false;
-      return;
-    }
-
-    if (isUpdatingPosition.current) {
-      onChangePosition({ x, y });
-    }
-    else if (resizeType.current) {
-      onResizeModal({ x, y });
+      interaction.current = INTERACTIONS.NONE;
     }
   };
 
@@ -156,14 +152,14 @@ const enhance = (VideoPlayer) => (props) => {
   const onResizeModal = ({ x, y }) => {
     let newHeight, newWidth;
 
-    switch (resizeType.current) {
-      case 'top':
+    switch (interaction.current) {
+      case INTERACTIONS.RESIZE_TOP:
         newHeight = y <= frameInfo.y ?
           frameInfo.height + frameInfo.y - y
           :
           frameInfo.height - (y - frameInfo.y);
 
-        if (newHeight > MIN_HEIGHT) {
+        if (newHeight >= MIN_HEIGHT) {
           setFrameInfo((prev) => ({
             ...prev,
             y,
@@ -171,13 +167,13 @@ const enhance = (VideoPlayer) => (props) => {
           }));
         }
         break;
-      case 'left':
+      case INTERACTIONS.RESIZE_LEFT:
         newWidth = x <= frameInfo.x ?
           frameInfo.width + frameInfo.x - x
           :
           frameInfo.width - (x - frameInfo.x);
 
-        if (newWidth > MIN_WIDTH) {
+        if (newWidth >= MIN_WIDTH) {
           setFrameInfo((prev) => ({
             ...prev,
             x,
@@ -185,7 +181,7 @@ const enhance = (VideoPlayer) => (props) => {
           }));
         }
         break;
-      case 'right':
+      case INTERACTIONS.RESIZE_RIGHT:
         setFrameInfo((prev) => ({
           ...prev,
           width: x >= frameInfo.x + prev.width + 10 ?
@@ -194,7 +190,7 @@ const enhance = (VideoPlayer) => (props) => {
             x - frameInfo.x
         }));
         break;
-      case 'bottom':
+      case INTERACTIONS.RESIZE_BOTTOM:
         setFrameInfo((prev) => ({
           ...prev,
           height: y >= frameInfo.y + prev.height + 10 ?
@@ -203,9 +199,9 @@ const enhance = (VideoPlayer) => (props) => {
             y - frameInfo.y
         }));
         break;
-      case 'top-left':
+      case INTERACTIONS.RESIZE_TOP_LEFT:
         break;
-      case 'bottom-right':
+      case INTERACTIONS.RESIZE_BOTTOM_RIGHT:
         if (x >= frameInfo.x + frameInfo.width + 10) {
           newWidth = frameInfo.width + (x - (frameInfo.x + frameInfo.width + 10));
         }
