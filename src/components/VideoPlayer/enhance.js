@@ -246,6 +246,20 @@ const enhance = (VideoPlayer) => (props) => {
         height,
       });
     }
+    else if (width >= MIN_WIDTH && height < MIN_HEIGHT) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        x,
+        width
+      }));
+    }
+    else if (height >= MIN_HEIGHT && width < MIN_WIDTH) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        y,
+        height
+      }));
+    }
   };
 
   const onResizeTopRight = (x, y) => {
@@ -271,6 +285,19 @@ const enhance = (VideoPlayer) => (props) => {
         y,
         width,
         height,
+      }));
+    }
+    else if (width >= MIN_WIDTH && height < MIN_HEIGHT) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        width
+      }));
+    }
+    else if (height >= MIN_HEIGHT && width < MIN_WIDTH) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        height,
+        y,
       }));
     }
   };
@@ -321,6 +348,19 @@ const enhance = (VideoPlayer) => (props) => {
         ...prev,
         x,
         width,
+        height
+      }));
+    }
+    else if (width >= MIN_WIDTH && height < MIN_HEIGHT) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        width,
+        x,
+      }));
+    }
+    else if (height >= MIN_HEIGHT && width < MIN_WIDTH) {
+      setFrameInfo((prev) => ({
+        ...prev,
         height
       }));
     }
