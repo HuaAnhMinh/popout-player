@@ -159,7 +159,7 @@ const enhance = (VideoPlayer) => (props) => {
       case INTERACTIONS.RESIZE_BOTTOM:
         return onResizeBottom(y);
       case INTERACTIONS.RESIZE_TOP_LEFT:
-        break;
+        return onResizeTopLeft(x, y);
       case INTERACTIONS.RESIZE_BOTTOM_RIGHT:
         return onResizeBottomRight(x, y);
       default:
@@ -185,8 +185,8 @@ const enhance = (VideoPlayer) => (props) => {
   const onResizeRight = (x) => {
     setFrameInfo((prev) => ({
       ...prev,
-      width: x >= frameInfo.x + prev.width + 10 ?
-        prev.width + (x - (frameInfo.x + prev.width + 10))
+      width: x >= frameInfo.x + prev.width ?
+        prev.width + (x - (frameInfo.x + prev.width))
         :
         x - frameInfo.x
     }));
@@ -195,8 +195,8 @@ const enhance = (VideoPlayer) => (props) => {
   const onResizeBottom = (y) => {
     setFrameInfo((prev) => ({
       ...prev,
-      height: y >= frameInfo.y + prev.height + 10 ?
-        prev.height + (y - (frameInfo.y + prev.height + 10))
+      height: y >= frameInfo.y + prev.height ?
+        prev.height + (y - (frameInfo.y + prev.height))
         :
         y - frameInfo.y
     }));
@@ -217,17 +217,44 @@ const enhance = (VideoPlayer) => (props) => {
     }
   };
 
+  const onResizeTopLeft = (x, y) => {
+    let width, height;
+
+    if (x >= frameInfo.x) {
+      width = frameInfo.width - (x - frameInfo.x);
+    }
+    else {
+      width = frameInfo.width + (frameInfo.x - x);
+    }
+
+    if (y >= frameInfo.y) {
+      height = frameInfo.height - (y - frameInfo.y);
+    }
+    else {
+      height = frameInfo.height + (frameInfo.y - y);
+    }
+
+    if (width >= MIN_WIDTH && height >= MIN_HEIGHT) {
+      setFrameInfo({
+        x,
+        y,
+        width,
+        height,
+      });
+    }
+  };
+
   const onResizeBottomRight = (x, y) => {
     let width, height;
 
-    if (x >= frameInfo.x + frameInfo.width + 10) {
+    if (x >= frameInfo.x + frameInfo.width) {
       width = frameInfo.width + (x - (frameInfo.x + frameInfo.width + 10));
     }
     else {
       width = frameInfo.width - ((frameInfo.x + frameInfo.width + 10) - x);
     }
 
-    if (y >= frameInfo.y + frameInfo.height + 10) {
+    if (y >= frameInfo.y + frameInfo.height) {
       height = frameInfo.height + (y - (frameInfo.y + frameInfo.height + 10));
     }
     else {
