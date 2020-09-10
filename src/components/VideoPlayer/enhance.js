@@ -129,7 +129,6 @@ const enhance = (VideoPlayer) => (props) => {
     }
     else if (currentPoint.x >= frameInfo.x + 10 && currentPoint.x <= topRight.x - 10 &&
       currentPoint.y >= frameInfo.y + 10 && currentPoint.y <= bottomRight.y - 10) {
-      console.log('Here');
       setPointerType('move');
       interaction.current = INTERACTIONS.MOVING;
     }
@@ -150,81 +149,96 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onResizeModal = ({ x, y }) => {
-    let newHeight, newWidth;
-
     switch (interaction.current) {
       case INTERACTIONS.RESIZE_TOP:
-        newHeight = y <= frameInfo.y ?
-          frameInfo.height + frameInfo.y - y
-          :
-          frameInfo.height - (y - frameInfo.y);
-
-        if (newHeight >= MIN_HEIGHT) {
-          setFrameInfo((prev) => ({
-            ...prev,
-            y,
-            height: newHeight
-          }));
-        }
-        break;
+        return onResizeTop(y);
       case INTERACTIONS.RESIZE_LEFT:
-        newWidth = x <= frameInfo.x ?
-          frameInfo.width + frameInfo.x - x
-          :
-          frameInfo.width - (x - frameInfo.x);
-
-        if (newWidth >= MIN_WIDTH) {
-          setFrameInfo((prev) => ({
-            ...prev,
-            x,
-            width: newWidth
-          }));
-        }
-        break;
+        return onResizeLeft(x);
       case INTERACTIONS.RESIZE_RIGHT:
-        setFrameInfo((prev) => ({
-          ...prev,
-          width: x >= frameInfo.x + prev.width + 10 ?
-            prev.width + (x - (frameInfo.x + prev.width + 10))
-            :
-            x - frameInfo.x
-        }));
-        break;
+        return onResizeRight(x);
       case INTERACTIONS.RESIZE_BOTTOM:
-        setFrameInfo((prev) => ({
-          ...prev,
-          height: y >= frameInfo.y + prev.height + 10 ?
-            prev.height + (y - (frameInfo.y + prev.height + 10))
-            :
-            y - frameInfo.y
-        }));
-        break;
+        return onResizeBottom(y);
       case INTERACTIONS.RESIZE_TOP_LEFT:
         break;
       case INTERACTIONS.RESIZE_BOTTOM_RIGHT:
-        if (x >= frameInfo.x + frameInfo.width + 10) {
-          newWidth = frameInfo.width + (x - (frameInfo.x + frameInfo.width + 10));
-        }
-        else {
-          newWidth = frameInfo.width - ((frameInfo.x + frameInfo.width + 10) - x);
-        }
-
-        if (y >= frameInfo.y + frameInfo.height + 10) {
-          newHeight = frameInfo.height + (y - (frameInfo.y + frameInfo.height + 10));
-        }
-        else {
-          newHeight = frameInfo.height - ((frameInfo.y + frameInfo.height + 10) - y);
-        }
-
-        setFrameInfo((prev) => ({
-          ...prev,
-          width: newWidth,
-          height: newHeight,
-        }));
-        break;
+        return onResizeBottomRight(x, y);
       default:
         break;
     }
+  };
+
+  const onResizeTop = (y) => {
+    const height = y <= frameInfo.y ?
+    frameInfo.height + frameInfo.y - y
+    :
+    frameInfo.height - (y - frameInfo.y);
+
+    if (height >= MIN_HEIGHT) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        y,
+        height
+      }));
+    }
+  };
+
+  const onResizeRight = (x) => {
+    setFrameInfo((prev) => ({
+      ...prev,
+      width: x >= frameInfo.x + prev.width + 10 ?
+        prev.width + (x - (frameInfo.x + prev.width + 10))
+        :
+        x - frameInfo.x
+    }));
+  };
+
+  const onResizeBottom = (y) => {
+    setFrameInfo((prev) => ({
+      ...prev,
+      height: y >= frameInfo.y + prev.height + 10 ?
+        prev.height + (y - (frameInfo.y + prev.height + 10))
+        :
+        y - frameInfo.y
+    }));
+  };
+
+  const onResizeLeft = (x) => {
+    const width = x <= frameInfo.x ?
+    frameInfo.width + frameInfo.x - x
+    :
+    frameInfo.width - (x - frameInfo.x);
+
+    if (width >= MIN_WIDTH) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        x,
+        width
+      }));
+    }
+  };
+
+  const onResizeBottomRight = (x, y) => {
+    let width, height;
+
+    if (x >= frameInfo.x + frameInfo.width + 10) {
+      width = frameInfo.width + (x - (frameInfo.x + frameInfo.width + 10));
+    }
+    else {
+      width = frameInfo.width - ((frameInfo.x + frameInfo.width + 10) - x);
+    }
+
+    if (y >= frameInfo.y + frameInfo.height + 10) {
+      height = frameInfo.height + (y - (frameInfo.y + frameInfo.height + 10));
+    }
+    else {
+      height = frameInfo.height - ((frameInfo.y + frameInfo.height + 10) - y);
+    }
+
+    setFrameInfo((prev) => ({
+      ...prev,
+      width,
+      height,
+    }));
   };
 
   return (
