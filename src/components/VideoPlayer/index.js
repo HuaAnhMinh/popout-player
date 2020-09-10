@@ -12,7 +12,6 @@ const VideoPlayer = (props) => {
     pointerType,
     resizedModal,
     currentPosition,
-    onStartPress,
   } = props;
 
   return (
@@ -29,7 +28,6 @@ const VideoPlayer = (props) => {
           left: currentPosition.x,
           cursor: pointerType,
         }}
-        onMouseDown={(e) => onStartPress(e)}
       >
         <span className="header">
           <div id="close" onClick={() => onCloseModal(false)}></div>
@@ -42,6 +40,7 @@ const VideoPlayer = (props) => {
             minWidth: MIN_WIDTH,
             minHeight: MIN_HEIGHT,
             border: "6px solid #000",
+            cursor: pointerType,
           }}
         >
           <iframe
@@ -51,6 +50,7 @@ const VideoPlayer = (props) => {
               width: "100%",
               height: "100%",
               pointerEvents: isPressing.current ? "none" : "initial",
+              cursor: pointerType !== 'move' ? 'initial' : 'move',
             }}
             src={url}
             frameBorder="0"

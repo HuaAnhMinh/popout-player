@@ -1,5 +1,5 @@
-const DEFAULT_LEFT = 200;
-const DEFAULT_TOP = 200;
+const DEFAULT_LEFT = 600;
+const DEFAULT_TOP = 300;
 const DEFAULT_WIDTH = 340;
 const DEFAULT_HEIGHT = 200;
 const MIN_WIDTH = 300;

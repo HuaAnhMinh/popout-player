@@ -1,10 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 
 import {
   getEmbedUrl,
   detectDiffTwoPoint,
-  isMovingOnCorner,
-  isMovingOnVertical,
 } from "../../utils/utils";
 import {
   DEFAULT_TOP,
@@ -19,9 +18,6 @@ const enhance = (VideoPlayer) => (props) => {
   const isUpdatingPosition = useRef(false);
   const resizeType = useRef('');
   const isPressing = useRef(false);
-  const isMarkStartPoint = useRef(false);
-  const startPoint = useRef({ x: 0, y: 0 });
-  const currentPointer = useRef("");
   const [currentPosition, setCurrentPosition] = useState({
     x: DEFAULT_LEFT,
     y: DEFAULT_TOP,
@@ -36,9 +32,13 @@ const enhance = (VideoPlayer) => (props) => {
     function handleMouseMove(e) {
       onDetermineCursor({ x: e.clientX, y: e.clientY });
     }
+
     function handleMouseUp(e) {
       isPressing.current = false;
+      resizeType.current = '';
+      isUpdatingPosition.current = false;
     }
+
     function handleMouseDown(e) {
       isPressing.current = true;
     }
@@ -54,65 +54,8 @@ const enhance = (VideoPlayer) => (props) => {
     };
   }, [resizedModal, currentPosition, pointerType]);
 
-  function setIsPressing(val) {
-    isPressing.current = val;
-  }
-
-  function setIsMarkStartPoint(val) {
-    isMarkStartPoint.current = val;
-  }
-
-  function setStartPoint(val) {
-    startPoint.current = val;
-  }
-
-  function setIsUpdatingPosition(val) {
-    isUpdatingPosition.current = val;
-  }
-
-  function setCurrentPointer(val) {
-    currentPointer.current = val;
-  }
-
-  const onStopPress = () => {
-    setIsPressing(false);
-    setStartPoint({ x: 0, y: 0 });
-    setIsMarkStartPoint(false);
-    setIsUpdatingPosition(false);
-    setCurrentPointer("");
-  };
-
-  const onStartPress = (e) => {
-    const isHeaderArea = document
-      .getElementsByClassName("header")[0]
-      .contains(e.target);
-
-    setIsPressing(true);
-    setCurrentPointer(pointerType);
-    if (isHeaderArea) {
-      setIsUpdatingPosition(true);
-      return;
-    }
-  };
-
-  const onCalculateDiff = ({ x, y }) => {
-    if (isMarkStartPoint.current) {
-      return detectDiffTwoPoint(startPoint.current, { x, y });
-    }
-
-    setStartPoint({ x, y });
-    setIsMarkStartPoint(true);
-    return { diffLeft: 0, diffTop: 0 };
-  };
-
   const onDetermineCursor = ({ x, y }) => {
     const currentPoint = { x, y };
-    const param = {
-      currentPoint,
-      currentPosition,
-      resizedModal,
-      cornerNum: "1",
-    };
 
     const bottomRight = {
       x: currentPosition.x + resizedModal.resizedWidth + 10,
@@ -173,36 +116,39 @@ const enhance = (VideoPlayer) => (props) => {
       setPointerType('ew-resize');
       resizeType.current = 'right';
     }
-    else {
-      if (!isPressing.current) {
-        setPointerType('default');
-      }
-      // resizeType = '';
+    else if (currentPoint.x >= currentPosition.x + 10 && currentPoint.x <= topRight.x - 10 &&
+      currentPoint.y >= currentPosition.y + 10 && currentPoint.y <= bottomRight.y - 10 &&
+      !resizeType && isPressing.current) {
+      console.log('Here');
+      setPointerType('move');
+      isUpdatingPosition.current = true;
+    }
+    else if (!isPressing.current) {
+      setPointerType('default');
     }
 
-    if (!isPressing.current) return;
-    // if (isUpdatingPosition.current) {
-    //   onChangePosition({ x, y });
-    //   return;
-    // }
-    if (isPressing.current && resizeType.current) {
+    if (!isPressing.current) {
+      resizeType.current = '';
+      isUpdatingPosition.current = false;
+      return;
+    }
+
+    if (isUpdatingPosition.current) {
+      onChangePosition({ x, y });
+    }
+    else if (resizeType.current) {
       onResizeModal({ x, y });
     }
   };
 
   const onChangePosition = ({ x, y }) => {
-    const positionDiff = onCalculateDiff({ x, y });
-    setStartPoint({ x, y });
+    const positionDiff = detectDiffTwoPoint(currentPosition, { x, y });
 
     setCurrentPosition({
       x: currentPosition.x + positionDiff.diffLeft,
       y: currentPosition.y + positionDiff.diffTop,
     });
   };
-
-  useEffect(() => {
-    
-  }, [currentPosition.y]);
 
   const onResizeModal = ({ x, y }) => {
     let newHeight, newWidth;
@@ -262,6 +208,28 @@ const enhance = (VideoPlayer) => (props) => {
             y - currentPosition.y
         }));
         break;
+      case 'top-left':
+        break;
+      case 'bottom-right':
+        if (x >= currentPosition.x + resizedModal.resizedWidth + 10) {
+          newWidth = resizedModal.resizedWidth + (x - (currentPosition.x + resizedModal.resizedWidth + 10));
+        }
+        else {
+          newWidth = resizedModal.resizedWidth - ((currentPosition.x + resizedModal.resizedWidth + 10) - x);
+        }
+
+        if (y >= currentPosition.y + resizedModal.resizedHeight + 10) {
+          newHeight = resizedModal.resizedHeight + (y - (currentPosition.y + resizedModal.resizedHeight + 10));
+        }
+        else {
+          newHeight = resizedModal.resizedHeight - ((currentPosition.y + resizedModal.resizedHeight + 10) - y);
+        }
+
+        setResizedModal({
+          resizedWidth: newWidth,
+          resizedHeight: newHeight,
+        });
+        break;
       default:
         break;
     }
@@ -275,7 +243,6 @@ const enhance = (VideoPlayer) => (props) => {
       pointerType={pointerType}
       resizedModal={resizedModal}
       currentPosition={currentPosition}
-      onStartPress={onStartPress}
     />
   );
 };
