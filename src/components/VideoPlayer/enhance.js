@@ -16,16 +16,18 @@ import {
 
 const enhance = (VideoPlayer) => (props) => {
   const isUpdatingPosition = useRef(false);
+
   const resizeType = useRef('');
+
   const isPressing = useRef(false);
-  const [currentPosition, setCurrentPosition] = useState({
+
+  const [frameInfo, setFrameInfo] = useState({
     x: DEFAULT_LEFT,
     y: DEFAULT_TOP,
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT
   });
-  const [resizedModal, setResizedModal] = useState({
-    resizedWidth: DEFAULT_WIDTH,
-    resizedHeight: DEFAULT_HEIGHT,
-  });
+
   const [pointerType, setPointerType] = useState("default");
 
   useEffect(() => {
@@ -52,29 +54,29 @@ const enhance = (VideoPlayer) => (props) => {
       window.removeEventListener("mouseup", handleMouseUp, true);
       window.removeEventListener("mousedown", handleMouseDown, true);
     };
-  }, [resizedModal, currentPosition, pointerType]);
+  }, [frameInfo, pointerType]);
 
   const onDetermineCursor = ({ x, y }) => {
     const currentPoint = { x, y };
 
     const bottomRight = {
-      x: currentPosition.x + resizedModal.resizedWidth + 10,
-      y: currentPosition.y + resizedModal.resizedHeight + 10,
+      x: frameInfo.x + frameInfo.width + 10,
+      y: frameInfo.y + frameInfo.height + 10,
     };
 
     const topRight = {
-      x: currentPosition.x + resizedModal.resizedWidth + 10,
-      y: currentPosition.y,
+      x: frameInfo.x + frameInfo.width + 10,
+      y: frameInfo.y,
     };
 
     const bottomLeft = {
-      x: currentPosition.x,
-      y: currentPosition.y + resizedModal.resizedHeight + 10,
+      x: frameInfo.x,
+      y: frameInfo.y + frameInfo.height + 10,
     };
 
     // top left
-    if (currentPoint.x >= currentPosition.x - 10 && currentPoint.x <= currentPosition.x &&
-      currentPoint.y >= currentPosition.y - 10 && currentPoint.y <= currentPosition.y) {
+    if (currentPoint.x >= frameInfo.x - 10 && currentPoint.x <= frameInfo.x &&
+      currentPoint.y >= frameInfo.y - 10 && currentPoint.y <= frameInfo.y) {
       setPointerType('nwse-resize');
       resizeType.current = 'top-left';
     }
@@ -97,7 +99,7 @@ const enhance = (VideoPlayer) => (props) => {
       resizeType.current = 'bottom-left';
     }
     // top
-    else if (currentPoint.y <= currentPosition.y && currentPoint.y >= currentPosition.y - 10) {
+    else if (currentPoint.y <= frameInfo.y && currentPoint.y >= frameInfo.y - 10) {
       setPointerType('ns-resize');
       resizeType.current = 'top';
     }
@@ -107,7 +109,7 @@ const enhance = (VideoPlayer) => (props) => {
       resizeType.current = 'bottom';
     }
     // left
-    else if (currentPoint.x <= currentPosition.x && currentPoint.x >= currentPosition.x - 10) {
+    else if (currentPoint.x <= frameInfo.x && currentPoint.x >= frameInfo.x - 10) {
       setPointerType('ew-resize');
       resizeType.current = 'left';
     }
@@ -116,8 +118,8 @@ const enhance = (VideoPlayer) => (props) => {
       setPointerType('ew-resize');
       resizeType.current = 'right';
     }
-    else if (currentPoint.x >= currentPosition.x + 10 && currentPoint.x <= topRight.x - 10 &&
-      currentPoint.y >= currentPosition.y + 10 && currentPoint.y <= bottomRight.y - 10 &&
+    else if (currentPoint.x >= frameInfo.x + 10 && currentPoint.x <= topRight.x - 10 &&
+      currentPoint.y >= frameInfo.y + 10 && currentPoint.y <= bottomRight.y - 10 &&
       !resizeType && isPressing.current) {
       console.log('Here');
       setPointerType('move');
@@ -142,12 +144,13 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onChangePosition = ({ x, y }) => {
-    const positionDiff = detectDiffTwoPoint(currentPosition, { x, y });
+    const positionDiff = detectDiffTwoPoint(frameInfo, { x, y });
 
-    setCurrentPosition({
-      x: currentPosition.x + positionDiff.diffLeft,
-      y: currentPosition.y + positionDiff.diffTop,
-    });
+    setFrameInfo((prev) => ({
+      ...prev,
+      x: frameInfo.x + positionDiff.diffLeft,
+      y: frameInfo.y + positionDiff.diffTop,
+    }));
   };
 
   const onResizeModal = ({ x, y }) => {
@@ -155,80 +158,73 @@ const enhance = (VideoPlayer) => (props) => {
 
     switch (resizeType.current) {
       case 'top':
-        newHeight = y <= currentPosition.y ?
-          resizedModal.resizedHeight + currentPosition.y - y
+        newHeight = y <= frameInfo.y ?
+          frameInfo.height + frameInfo.y - y
           :
-          resizedModal.resizedHeight - (y - currentPosition.y);
+          frameInfo.height - (y - frameInfo.y);
 
         if (newHeight > MIN_HEIGHT) {
-          setCurrentPosition((prev) => ({
+          setFrameInfo((prev) => ({
             ...prev,
-            y
+            y,
+            height: newHeight
           }));
         }
-
-        setResizedModal((prev) => ({
-          ...prev,
-          resizedHeight: newHeight
-        }));
         break;
       case 'left':
-        newWidth = x <= currentPosition.x ?
-          resizedModal.resizedWidth + currentPosition.x - x
+        newWidth = x <= frameInfo.x ?
+          frameInfo.width + frameInfo.x - x
           :
-          resizedModal.resizedWidth - (x - currentPosition.x);
+          frameInfo.width - (x - frameInfo.x);
 
         if (newWidth > MIN_WIDTH) {
-          setCurrentPosition((prev) => ({
+          setFrameInfo((prev) => ({
             ...prev,
-            x
+            x,
+            width: newWidth
           }));
         }
-
-        setResizedModal((prev) => ({
-          ...prev,
-          resizedWidth: newWidth
-        }));
         break;
       case 'right':
-        setResizedModal((prev) => ({
+        setFrameInfo((prev) => ({
           ...prev,
-          resizedWidth: x >= currentPosition.x + prev.resizedWidth + 10 ?
-            prev.resizedWidth + (x - (currentPosition.x + prev.resizedWidth + 10))
+          width: x >= frameInfo.x + prev.width + 10 ?
+            prev.width + (x - (frameInfo.x + prev.width + 10))
             :
-            x - currentPosition.x
+            x - frameInfo.x
         }));
         break;
       case 'bottom':
-        setResizedModal((prev) => ({
+        setFrameInfo((prev) => ({
           ...prev,
-          resizedHeight: y >= currentPosition.y + prev.resizedHeight + 10 ?
-            prev.resizedHeight + (y - (currentPosition.y + prev.resizedHeight + 10))
+          height: y >= frameInfo.y + prev.height + 10 ?
+            prev.height + (y - (frameInfo.y + prev.height + 10))
             :
-            y - currentPosition.y
+            y - frameInfo.y
         }));
         break;
       case 'top-left':
         break;
       case 'bottom-right':
-        if (x >= currentPosition.x + resizedModal.resizedWidth + 10) {
-          newWidth = resizedModal.resizedWidth + (x - (currentPosition.x + resizedModal.resizedWidth + 10));
+        if (x >= frameInfo.x + frameInfo.width + 10) {
+          newWidth = frameInfo.width + (x - (frameInfo.x + frameInfo.width + 10));
         }
         else {
-          newWidth = resizedModal.resizedWidth - ((currentPosition.x + resizedModal.resizedWidth + 10) - x);
+          newWidth = frameInfo.width - ((frameInfo.x + frameInfo.width + 10) - x);
         }
 
-        if (y >= currentPosition.y + resizedModal.resizedHeight + 10) {
-          newHeight = resizedModal.resizedHeight + (y - (currentPosition.y + resizedModal.resizedHeight + 10));
+        if (y >= frameInfo.y + frameInfo.height + 10) {
+          newHeight = frameInfo.height + (y - (frameInfo.y + frameInfo.height + 10));
         }
         else {
-          newHeight = resizedModal.resizedHeight - ((currentPosition.y + resizedModal.resizedHeight + 10) - y);
+          newHeight = frameInfo.height - ((frameInfo.y + frameInfo.height + 10) - y);
         }
 
-        setResizedModal({
-          resizedWidth: newWidth,
-          resizedHeight: newHeight,
-        });
+        setFrameInfo((prev) => ({
+          ...prev,
+          width: newWidth,
+          height: newHeight,
+        }));
         break;
       default:
         break;
@@ -241,8 +237,7 @@ const enhance = (VideoPlayer) => (props) => {
       onCloseModal={props.setIsOpenModal}
       isPressing={isPressing}
       pointerType={pointerType}
-      resizedModal={resizedModal}
-      currentPosition={currentPosition}
+      frameInfo={frameInfo}
     />
   );
 };

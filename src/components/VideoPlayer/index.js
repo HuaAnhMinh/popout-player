@@ -10,8 +10,7 @@ const VideoPlayer = (props) => {
     onCloseModal,
     isPressing,
     pointerType,
-    resizedModal,
-    currentPosition,
+    frameInfo
   } = props;
 
   return (
@@ -24,8 +23,8 @@ const VideoPlayer = (props) => {
       <div
         className="video__player__modal"
         style={{
-          top: currentPosition.y,
-          left: currentPosition.x,
+          top: frameInfo.y,
+          left: frameInfo.x,
           cursor: pointerType,
         }}
       >
@@ -35,12 +34,12 @@ const VideoPlayer = (props) => {
         <div
           style={{
             position: "relative",
-            width: resizedModal.resizedWidth,
-            height: resizedModal.resizedHeight,
-            minWidth: MIN_WIDTH,
-            minHeight: MIN_HEIGHT,
             border: "6px solid #000",
             cursor: pointerType,
+            width: frameInfo.width,
+            height: frameInfo.height,
+            minWidth: MIN_WIDTH,
+            minHeight: MIN_HEIGHT,
           }}
         >
           <iframe
