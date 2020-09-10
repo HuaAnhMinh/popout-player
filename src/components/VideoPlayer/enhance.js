@@ -160,8 +160,12 @@ const enhance = (VideoPlayer) => (props) => {
         return onResizeBottom(y);
       case INTERACTIONS.RESIZE_TOP_LEFT:
         return onResizeTopLeft(x, y);
+      case INTERACTIONS.RESIZE_TOP_RIGHT:
+        return onResizeTopRight(x, y);
       case INTERACTIONS.RESIZE_BOTTOM_RIGHT:
         return onResizeBottomRight(x, y);
+      case INTERACTIONS.RESIZE_BOTTOM_LEFT:
+        return onResizeBottomLeft(x, y);
       default:
         break;
     }
@@ -244,6 +248,33 @@ const enhance = (VideoPlayer) => (props) => {
     }
   };
 
+  const onResizeTopRight = (x, y) => {
+    let width, height;
+
+    if (x >= frameInfo.x + frameInfo.width) {
+      width = frameInfo.width + (x - (frameInfo.x + frameInfo.width));
+    }
+    else {
+      width = frameInfo.width - ((frameInfo.x + frameInfo.width) - x);
+    }
+
+    if (y >= frameInfo.y) {
+      height = frameInfo.height - (y - frameInfo.y);
+    }
+    else {
+      height = frameInfo.height + (frameInfo.y - y);
+    }
+
+    if (width >= MIN_WIDTH && height >= MIN_HEIGHT) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        y,
+        width,
+        height,
+      }));
+    }
+  };
+
   const onResizeBottomRight = (x, y) => {
     let width, height;
 
@@ -266,6 +297,33 @@ const enhance = (VideoPlayer) => (props) => {
       width,
       height,
     }));
+  };
+
+  const onResizeBottomLeft = (x, y) => {
+    let width, height;
+
+    if (x >= frameInfo.x) {
+      width = frameInfo.width - (x - frameInfo.x);
+    }
+    else {
+      width = frameInfo.width + (frameInfo.x - x);
+    }
+
+    if (y >= frameInfo.y + frameInfo.height) {
+      height = frameInfo.height + (y - (frameInfo.y + frameInfo.height));
+    }
+    else {
+      height = frameInfo.height - ((frameInfo.y + frameInfo.height) - y);
+    }
+
+    if (width >= MIN_WIDTH && height >= MIN_HEIGHT) {
+      setFrameInfo((prev) => ({
+        ...prev,
+        x,
+        width,
+        height
+      }));
+    }
   };
 
   return (
