@@ -18,6 +18,7 @@ import {
 const enhance = (VideoPlayer) => (props) => {
   const isPressing = useRef(false);
   const interaction = useRef(INTERACTIONS.NONE);
+  const pressedPoint = useRef({});
 
   const [frameInfo, setFrameInfo] = useState({
     x: DEFAULT_LEFT,
@@ -35,11 +36,13 @@ const enhance = (VideoPlayer) => (props) => {
 
     function handleMouseUp(e) {
       isPressing.current = false;
-      interaction.current = INTERACTIONS.NONE;
+      onHandleInteraction({ x: e.clientX, y: e.clientY });
     }
 
     function handleMouseDown(e) {
       isPressing.current = true;
+      pressedPoint.current = { x: e.clientX, y: e.clientY, frameX: frameInfo.x, frameY: frameInfo.y, };
+      onHandleInteraction({ x: e.clientX, y: e.clientY });
     }
 
     window.addEventListener("mousemove", handleMouseMove, true);
@@ -57,14 +60,12 @@ const enhance = (VideoPlayer) => (props) => {
     const currentPoint = { x, y };
 
     if (isPressing.current && interaction.current !== INTERACTIONS.NONE) {
-      onResizeModal({ x, y });
       if (interaction.current === INTERACTIONS.MOVING) {
-        onChangePosition({ x, y });
+        return onChangePosition({ x, y });
       }
       else {
-        onResizeModal({ x, y });
+        return onResizeModal({ x, y });
       }
-      return;
     }
 
     const bottomRight = {
@@ -123,14 +124,19 @@ const enhance = (VideoPlayer) => (props) => {
     }
     // right
     else if (currentPoint.x >= topRight.x && currentPoint.x <= topRight.x + 10) {
-      console.log('right');
       setPointerType('ew-resize');
       interaction.current = INTERACTIONS.RESIZE_RIGHT;
     }
-    else if (currentPoint.x >= frameInfo.x + 10 && currentPoint.x <= topRight.x - 10 &&
-      currentPoint.y >= frameInfo.y + 10 && currentPoint.y <= bottomRight.y - 10) {
-      setPointerType('move');
-      interaction.current = INTERACTIONS.MOVING;
+    else if (currentPoint.x >= frameInfo.x + 1 && currentPoint.x <= topRight.x - 1 &&
+      currentPoint.y >= frameInfo.y + 1 && currentPoint.y <= bottomRight.y - 1) {
+      if (isPressing.current) {
+        setPointerType('move');
+        interaction.current = INTERACTIONS.MOVING;
+      }
+      else {
+        setPointerType('default');
+        interaction.current = INTERACTIONS.NONE;
+      }
     }
     else {
       setPointerType('default');
@@ -139,12 +145,18 @@ const enhance = (VideoPlayer) => (props) => {
   };
 
   const onChangePosition = ({ x, y }) => {
-    const positionDiff = detectDiffTwoPoint(frameInfo, { x, y });
+    const positionDiff = detectDiffTwoPoint({
+      x: pressedPoint.current.x,
+      y: pressedPoint.current.y
+    }, {
+      x,
+      y
+    });
 
     setFrameInfo((prev) => ({
       ...prev,
-      x: frameInfo.x + positionDiff.diffLeft,
-      y: frameInfo.y + positionDiff.diffTop,
+      x: pressedPoint.current.frameX + positionDiff.diffLeft,
+      y: pressedPoint.current.frameY + positionDiff.diffTop,
     }));
   };
 

@@ -16,16 +16,12 @@
   position: absolute;
   color: white;
   background-image: linear-gradient(black, rgba(0, 0, 0, 0));
-  /* width: calc(100% - 36px); */
-  width: calc(100% - 16px);
   height: 50px;
-  /* padding-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px; */
   z-index: 2;
-  left: 8px;
-  top: 12px;
-  right: 8px;
+  width: calc(100% - 10px);
+  left: 0;
+  font-size: 20px;
+  padding: 0 10px 5px 0;
 }
 
 #close {

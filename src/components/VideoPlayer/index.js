@@ -49,15 +49,16 @@ const VideoPlayer = (props) => {
             title="video player"
             style={{
               borderWidth: "0px",
-              width: "100%",
-              height: "100%",
+              width: frameInfo.width,
+              height: frameInfo.height,
               pointerEvents: isPressing.current ? "none" : "initial",
               cursor: pointerType !== 'move' ? 'initial' : 'move',
             }}
             src={url}
             frameBorder="0"
             scrolling="0"
-          ></iframe>
+          >
+          </iframe>
         </div>
       </div>
     </div>
