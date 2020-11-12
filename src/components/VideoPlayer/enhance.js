@@ -3,380 +3,189 @@ import React, { useState, useEffect, useRef } from "react";
 
 import {
   getEmbedUrl,
-  detectDiffTwoPoint,
 } from "../../utils/utils";
 import {
   DEFAULT_TOP,
   DEFAULT_LEFT,
   DEFAULT_WIDTH,
   DEFAULT_HEIGHT,
-  MIN_HEIGHT,
-  MIN_WIDTH,
-  INTERACTIONS
+  INTERACTIONS,
 } from "../../utils/constants";
+import setupQuerySelectorForElements from "./querySelector";
+import { resizeBottom, resizeBottomLeft, resizeBottomRight, resizeLeft, resizeRight, resizeTop, resizeTopLeft, resizeTopRight } from "./resize";
+import { moveModal } from "./move";
 
 const enhance = (VideoPlayer) => (props) => {
-  const isPressing = useRef(false);
+  const [isPressing, setIsPressing] = useState(false);
   const interaction = useRef(INTERACTIONS.NONE);
   const pressedPoint = useRef({});
+  const lastFramePoint = useRef({ x: DEFAULT_LEFT, y: DEFAULT_TOP, });
+  const elements = useRef({});
 
   const [frameInfo, setFrameInfo] = useState({
     x: DEFAULT_LEFT,
     y: DEFAULT_TOP,
     width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT
+    height: DEFAULT_HEIGHT,
   });
 
   const [pointerType, setPointerType] = useState("default");
 
   useEffect(() => {
-    function handleMouseMove(e) {
-      onHandleInteraction({ x: e.clientX, y: e.clientY });
-    }
+    elements.current = setupQuerySelectorForElements();
 
-    function handleMouseUp(e) {
-      isPressing.current = false;
-      onHandleInteraction({ x: e.clientX, y: e.clientY });
-    }
-
-    function handleMouseDown(e) {
-      isPressing.current = true;
-      pressedPoint.current = { x: e.clientX, y: e.clientY, frameX: frameInfo.x, frameY: frameInfo.y, };
-      onHandleInteraction({ x: e.clientX, y: e.clientY });
-    }
-
-    window.addEventListener("mousemove", handleMouseMove, true);
-    window.addEventListener("mouseup", handleMouseUp, true);
-    window.addEventListener("mousedown", handleMouseDown, true);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove, true);
-      window.removeEventListener("mouseup", handleMouseUp, true);
-      window.removeEventListener("mousedown", handleMouseDown, true);
-    };
-  }, [frameInfo.x, frameInfo.y, frameInfo.width, frameInfo.height, pointerType]);
-
-  const onHandleInteraction = ({ x, y }) => {
-    const currentPoint = { x, y };
-
-    if (isPressing.current && interaction.current !== INTERACTIONS.NONE) {
-      if (interaction.current === INTERACTIONS.MOVING) {
-        return onChangePosition({ x, y });
-      }
-      else {
-        return onResizeModal({ x, y });
-      }
-    }
-
-    const bottomRight = {
-      x: frameInfo.x + frameInfo.width,
-      y: frameInfo.y + frameInfo.height,
-    };
-
-    const topRight = {
-      x: frameInfo.x + frameInfo.width,
-      y: frameInfo.y,
-    };
-
-    const bottomLeft = {
-      x: frameInfo.x,
-      y: frameInfo.y + frameInfo.height,
-    };
-
-    // top left
-    if (currentPoint.x >= frameInfo.x - 10 && currentPoint.x <= frameInfo.x &&
-      currentPoint.y >= frameInfo.y - 10 && currentPoint.y <= frameInfo.y) {
-      setPointerType('nwse-resize');
-      interaction.current = INTERACTIONS.RESIZE_TOP_LEFT;
-    }
-    // bottom right
-    else if (currentPoint.x >= bottomRight.x && currentPoint.x <= bottomRight.x + 10 &&
-      currentPoint.y >= bottomRight.y && currentPoint.y <= bottomRight.y + 10) {
-      setPointerType('nwse-resize');
-      interaction.current = INTERACTIONS.RESIZE_BOTTOM_RIGHT;
-    }
-    // top right
-    else if (currentPoint.x <= topRight.x + 10 && currentPoint.x >= topRight.x &&
-      currentPoint.y >= topRight.y - 10 && currentPoint.y <= topRight.y) {
-      setPointerType('nesw-resize');
-      interaction.current = INTERACTIONS.RESIZE_TOP_RIGHT;
-    }
-    // bottom left
-    else if (currentPoint.x <= bottomLeft.x && currentPoint.x >= bottomLeft.x - 10 &&
-      currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
-      setPointerType('nesw-resize');
-      interaction.current = INTERACTIONS.RESIZE_BOTTOM_LEFT;
-    }
-    // top
-    else if (currentPoint.y <= frameInfo.y && currentPoint.y >= frameInfo.y - 10) {
-      setPointerType('ns-resize');
-      interaction.current = INTERACTIONS.RESIZE_TOP;
-    }
-    // bottom
-    else if (currentPoint.y >= bottomLeft.y && currentPoint.y <= bottomLeft.y + 10) {
-      setPointerType('ns-resize');
-      interaction.current = INTERACTIONS.RESIZE_BOTTOM;
-    }
-    // left
-    else if (currentPoint.x <= frameInfo.x && currentPoint.x >= frameInfo.x - 10) {
-      setPointerType('ew-resize');
-      interaction.current = INTERACTIONS.RESIZE_LEFT;
-    }
-    // right
-    else if (currentPoint.x >= topRight.x && currentPoint.x <= topRight.x + 10) {
-      setPointerType('ew-resize');
-      interaction.current = INTERACTIONS.RESIZE_RIGHT;
-    }
-    else if (currentPoint.x >= frameInfo.x + 1 && currentPoint.x <= topRight.x - 1 &&
-      currentPoint.y >= frameInfo.y + 1 && currentPoint.y <= bottomRight.y - 1) {
-      if (isPressing.current) {
-        setPointerType('move');
-        interaction.current = INTERACTIONS.MOVING;
-      }
-      else {
-        setPointerType('default');
-        interaction.current = INTERACTIONS.NONE;
-      }
-    }
-    else {
-      setPointerType('default');
-      interaction.current = INTERACTIONS.NONE;
-    }
-  };
-
-  const onChangePosition = ({ x, y }) => {
-    const positionDiff = detectDiffTwoPoint({
-      x: pressedPoint.current.x,
-      y: pressedPoint.current.y
-    }, {
-      x,
-      y
+    window.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      setIsPressing(true);
+      elements.current.resizeOverlay.style.display = 'block';
+      pressedPoint.current = { x: e.clientX, y: e.clientY, frameX: lastFramePoint.current.x, frameY: lastFramePoint.current.y, };
     });
 
-    setFrameInfo((prev) => ({
-      ...prev,
-      x: pressedPoint.current.frameX + positionDiff.diffLeft,
-      y: pressedPoint.current.frameY + positionDiff.diffTop,
-    }));
-  };
+    window.addEventListener('mouseup', (e) => {
+      setIsPressing(false);
+      setPointerType("default");
+      elements.current.resizeOverlay.style.display = 'none';
+      interaction.current = INTERACTIONS.NONE;
+      pressedPoint.current = {};
+    });
 
-  const onResizeModal = ({ x, y }) => {
-    switch (interaction.current) {
-      case INTERACTIONS.RESIZE_TOP:
-        return onResizeTop(y);
-      case INTERACTIONS.RESIZE_LEFT:
-        return onResizeLeft(x);
-      case INTERACTIONS.RESIZE_RIGHT:
-        return onResizeRight(x);
-      case INTERACTIONS.RESIZE_BOTTOM:
-        return onResizeBottom(y);
-      case INTERACTIONS.RESIZE_TOP_LEFT:
-        return onResizeTopLeft(x, y);
-      case INTERACTIONS.RESIZE_TOP_RIGHT:
-        return onResizeTopRight(x, y);
-      case INTERACTIONS.RESIZE_BOTTOM_RIGHT:
-        return onResizeBottomRight(x, y);
-      case INTERACTIONS.RESIZE_BOTTOM_LEFT:
-        return onResizeBottomLeft(x, y);
-      default:
-        break;
-    }
-  };
+    window.addEventListener('mousemove', (e) => {
+      if (interaction.current === INTERACTIONS.RESIZE_BOTTOM) {
+        return resizeBottom(e.clientY, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_TOP) {
+        return resizeTop(e.clientY, lastFramePoint, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_LEFT) {
+        return resizeLeft(e.clientX, lastFramePoint, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_RIGHT) {
+        return resizeRight(e.clientX, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_TOP_LEFT) {
+        return resizeTopLeft(e.clientX, e.clientY, lastFramePoint, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_TOP_RIGHT) {
+        return resizeTopRight(e.clientX, e.clientY, lastFramePoint, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_BOTTOM_LEFT) {
+        return resizeBottomLeft(e.clientX, e.clientY, lastFramePoint, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.RESIZE_BOTTOM_RIGHT) {
+        return resizeBottomRight(e.clientX, e.clientY, setFrameInfo);
+      }
+      else if (interaction.current === INTERACTIONS.MOVING) {
+        return moveModal(e.clientX, e.clientY, pressedPoint, lastFramePoint, setFrameInfo);
+      }
+    });
 
-  const onResizeTop = (y) => {
-    const height = y <= frameInfo.y ?
-    frameInfo.height + frameInfo.y - y
-    :
-    frameInfo.height - (y - frameInfo.y);
+    elements.current.bottom.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_BOTTOM;
+        setPointerType('ns-resize');
+      }
+    });
 
-    if (height >= MIN_HEIGHT) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        y,
-        height
-      }));
-    }
-  };
+    elements.current.top.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_TOP;
+        setPointerType('ns-resize');
+      }
+    });
 
-  const onResizeRight = (x) => {
-    setFrameInfo((prev) => ({
-      ...prev,
-      width: x >= frameInfo.x + prev.width ?
-        prev.width + (x - (frameInfo.x + prev.width))
-        :
-        x - frameInfo.x
-    }));
-  };
+    elements.current.left.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_LEFT;
+        setPointerType('ew-resize');
+      }
+    });
 
-  const onResizeBottom = (y) => {
-    setFrameInfo((prev) => ({
-      ...prev,
-      height: y >= frameInfo.y + prev.height ?
-        prev.height + (y - (frameInfo.y + prev.height))
-        :
-        y - frameInfo.y
-    }));
-  };
+    elements.current.right.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_RIGHT;
+        setPointerType('ew-resize');
+      }
+    });
+  
+    elements.current.insideTopLeft.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_TOP_LEFT;
+        setPointerType('nwse-resize');
+      }
+    });
 
-  const onResizeLeft = (x) => {
-    const width = x <= frameInfo.x ?
-    frameInfo.width + frameInfo.x - x
-    :
-    frameInfo.width - (x - frameInfo.x);
+    elements.current.outsideTopLeft.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_TOP_LEFT;
+        setPointerType('nwse-resize');
+      }
+    });
 
-    if (width >= MIN_WIDTH) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        x,
-        width
-      }));
-    }
-  };
+    elements.current.outsideTopRight.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_TOP_RIGHT;
+        setPointerType('nesw-resize');
+      }
+    });
 
-  const onResizeTopLeft = (x, y) => {
-    let width, height;
+    elements.current.insideTopRight.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_TOP_RIGHT;
+        setPointerType('nesw-resize');
+      }
+    });
 
-    if (x >= frameInfo.x) {
-      width = frameInfo.width - (x - frameInfo.x);
-    }
-    else {
-      width = frameInfo.width + (frameInfo.x - x);
-    }
+    elements.current.outsideBottomLeft.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_BOTTOM_LEFT;
+        setPointerType('nesw-resize');
+      }
+    });
 
-    if (y >= frameInfo.y) {
-      height = frameInfo.height - (y - frameInfo.y);
-    }
-    else {
-      height = frameInfo.height + (frameInfo.y - y);
-    }
+    elements.current.insideBottomLeft.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_BOTTOM_LEFT;
+        setPointerType('nesw-resize');
+      }
+    });
 
-    if (width >= MIN_WIDTH && height >= MIN_HEIGHT) {
-      setFrameInfo({
-        x,
-        y,
-        width,
-        height,
-      });
-    }
-    else if (width >= MIN_WIDTH && height < MIN_HEIGHT) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        x,
-        width
-      }));
-    }
-    else if (height >= MIN_HEIGHT && width < MIN_WIDTH) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        y,
-        height
-      }));
-    }
-  };
+    elements.current.outsideBottomRight.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_BOTTOM_RIGHT;
+        setPointerType('nwse-resize');
+      }
+    });
 
-  const onResizeTopRight = (x, y) => {
-    let width, height;
+    elements.current.insideBottomRight.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.RESIZE_BOTTOM_RIGHT;
+        setPointerType('nwse-resize');
+      }
+    });
+    
+    elements.current.modalWrapper.addEventListener('mouseenter', (e) => {
+      elements.current.moveOverlay.style.display = 'block';
+    });
 
-    if (x >= frameInfo.x + frameInfo.width) {
-      width = frameInfo.width + (x - (frameInfo.x + frameInfo.width));
-    }
-    else {
-      width = frameInfo.width - ((frameInfo.x + frameInfo.width) - x);
-    }
+    elements.current.modalWrapper.addEventListener('mouseleave', (e) => {
+      elements.current.moveOverlay.style.display = 'none';
+    });
+  
+    elements.current.moveOverlayContent.addEventListener('mousedown', (e) => {
+      elements.current.moveOverlay.style.zIndex = 11;
+    });
 
-    if (y >= frameInfo.y) {
-      height = frameInfo.height - (y - frameInfo.y);
-    }
-    else {
-      height = frameInfo.height + (frameInfo.y - y);
-    }
+    elements.current.moveOverlayContent.addEventListener('mouseup', (e) => {
+      elements.current.moveOverlay.style.zIndex = 3;
+    });
 
-    if (width >= MIN_WIDTH && height >= MIN_HEIGHT) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        y,
-        width,
-        height,
-      }));
-    }
-    else if (width >= MIN_WIDTH && height < MIN_HEIGHT) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        width
-      }));
-    }
-    else if (height >= MIN_HEIGHT && width < MIN_WIDTH) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        height,
-        y,
-      }));
-    }
-  };
-
-  const onResizeBottomRight = (x, y) => {
-    let width, height;
-
-    if (x >= frameInfo.x + frameInfo.width) {
-      width = frameInfo.width + (x - (frameInfo.x + frameInfo.width + 10));
-    }
-    else {
-      width = frameInfo.width - ((frameInfo.x + frameInfo.width + 10) - x);
-    }
-
-    if (y >= frameInfo.y + frameInfo.height) {
-      height = frameInfo.height + (y - (frameInfo.y + frameInfo.height + 10));
-    }
-    else {
-      height = frameInfo.height - ((frameInfo.y + frameInfo.height + 10) - y);
-    }
-
-    setFrameInfo((prev) => ({
-      ...prev,
-      width,
-      height,
-    }));
-  };
-
-  const onResizeBottomLeft = (x, y) => {
-    let width, height;
-
-    if (x >= frameInfo.x) {
-      width = frameInfo.width - (x - frameInfo.x);
-    }
-    else {
-      width = frameInfo.width + (frameInfo.x - x);
-    }
-
-    if (y >= frameInfo.y + frameInfo.height) {
-      height = frameInfo.height + (y - (frameInfo.y + frameInfo.height));
-    }
-    else {
-      height = frameInfo.height - ((frameInfo.y + frameInfo.height) - y);
-    }
-
-    if (width >= MIN_WIDTH && height >= MIN_HEIGHT) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        x,
-        width,
-        height
-      }));
-    }
-    else if (width >= MIN_WIDTH && height < MIN_HEIGHT) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        width,
-        x,
-      }));
-    }
-    else if (height >= MIN_HEIGHT && width < MIN_WIDTH) {
-      setFrameInfo((prev) => ({
-        ...prev,
-        height
-      }));
-    }
-  };
+    elements.current.moveOverlay.addEventListener('mousedown', (e) => {
+      if (interaction.current === INTERACTIONS.NONE) {
+        interaction.current = INTERACTIONS.MOVING;
+        setPointerType('move');
+      }
+    });
+  }, []);
 
   return (
     <VideoPlayer

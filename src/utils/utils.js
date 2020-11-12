@@ -10,26 +10,3 @@ export const getEmbedUrl = (url) => {
 
   return `https://www.youtube.com/embed/${videoId}`;
 };
-
-export const detectDiffTwoPoint = (start, end) => {
-  const deltaX = end.x - start.x;
-  const deltaY = end.y - start.y;
-  let direction;
-
-  // console.log("deltaX", deltaX, "deltaY", deltaY);
-  if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
-    direction = "right";
-  } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-    direction = "left";
-  } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
-    direction = "bottom";
-  } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
-    direction = "top";
-  } else if (Math.abs(deltaY) === Math.abs(deltaX) && deltaX !== 0) {
-    direction = "cross";
-  } else {
-    direction = "";
-  }
-
-  return { diffLeft: deltaX, diffTop: deltaY, direction };
-};
