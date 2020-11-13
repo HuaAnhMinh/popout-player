@@ -38,10 +38,15 @@ const enhance = (VideoPlayer) => (props) => {
       e.preventDefault();
       setIsPressing(true);
       elements.current.resizeOverlay.style.display = 'block';
-      pressedPoint.current = { x: e.clientX, y: e.clientY, frameX: lastFramePoint.current.x, frameY: lastFramePoint.current.y, };
+      pressedPoint.current = {
+        x: e.clientX,
+        y: e.clientY,
+        frameX: lastFramePoint.current.x,
+        frameY: lastFramePoint.current.y,
+      };
     });
 
-    window.addEventListener('mouseup', (e) => {
+    window.addEventListener('mouseup', () => {
       setIsPressing(false);
       setPointerType("default");
       elements.current.resizeOverlay.style.display = 'none';

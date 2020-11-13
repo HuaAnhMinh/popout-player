@@ -15,10 +15,10 @@ const VideoPlayer = (props) => {
 
   return (
     <div
+      id="page-wrapper"
       style={{
         cursor: pointerType,
       }}
-      id="page-wrapper"
     >
       <div
         id="modal-wrapper"
@@ -36,19 +36,22 @@ const VideoPlayer = (props) => {
           <div
             className="outside-boundary corner"
             id="outside-top-left"
-            style={{ cursor: !isPressing ? 'nwse-resize' : 'default' }}
+            style={{ cursor: !isPressing ? 'nwse-resize' : pointerType }}
           />
 
           <div
             className="outside-boundary"
             id="top"
-            style={{ width: frameInfo.width, cursor: !isPressing ? 'ns-resize' : 'default' }}
+            style={{
+              width: frameInfo.width,
+              cursor: !isPressing ? 'ns-resize' : pointerType
+            }}
           />
 
           <div
             className="outside-boundary corner"
             id="outside-top-right"
-            style={{ cursor: !isPressing ? 'nesw-resize' : 'default' }}
+            style={{ cursor: !isPressing ? 'nesw-resize' : pointerType }}
           />
         </div>
 
@@ -57,15 +60,23 @@ const VideoPlayer = (props) => {
           <div
             className="outside-boundary"
             id="left"
-            style={{ cursor: !isPressing ? 'ew-resize' : 'default' }}
+            style={{ cursor: !isPressing ? 'ew-resize' : pointerType }}
           />
           
           <div>
             <div
               id="move-overlay"
-              style={{ width: frameInfo.width, cursor: !isPressing ? 'move' : 'default' }}
+              style={{
+                width: frameInfo.width,
+                cursor: !isPressing ? 'move' : pointerType
+              }}
             >
-              <div id="move-overlay__content" onClick={() => onCloseModal(false)}>✖</div>
+              <div
+                id="move-overlay__content"
+                onClick={() => onCloseModal(false)}
+              >
+                ✖
+              </div>
             </div>
 
             <div
@@ -82,13 +93,13 @@ const VideoPlayer = (props) => {
                 <div
                   className="inside-boundary corner"
                   id="inside-top-left"
-                  style={{ cursor: !isPressing ? 'nwse-resize' : 'default' }}
+                  style={{ cursor: !isPressing ? 'nwse-resize' : pointerType }}
                 />
 
                 <div
                   className="inside-boundary corner"
                   id="inside-top-right"
-                  style={{ cursor: !isPressing ? 'nesw-resize' : 'default' }}
+                  style={{ cursor: !isPressing ? 'nesw-resize' : pointerType }}
                 />
               </div>
 
@@ -114,12 +125,13 @@ const VideoPlayer = (props) => {
                 <div
                   className="inside-boundary corner"
                   id="inside-bottom-left"
-                  style={{ cursor: !isPressing ? 'nesw-resize' : 'default' }}
+                  style={{ cursor: !isPressing ? 'nesw-resize' : pointerType }}
                 />
+
                 <div
                   className="inside-boundary corner"
                   id="inside-bottom-right"
-                  style={{ cursor: !isPressing ? 'nwse-resize' : 'default' }}
+                  style={{ cursor: !isPressing ? 'nwse-resize' : pointerType }}
                 />
               </div>
             </div>
@@ -128,7 +140,7 @@ const VideoPlayer = (props) => {
           <div
             className="outside-boundary"
             id="right"
-            style={{ cursor: !isPressing ? 'ew-resize' : 'default' }}
+            style={{ cursor: !isPressing ? 'ew-resize' : pointerType }}
           />
         </div>
 
@@ -136,17 +148,19 @@ const VideoPlayer = (props) => {
           <div
             className="outside-boundary corner"
             id="outside-bottom-left"
-            style={{ cursor: !isPressing ? 'nesw-resize' : 'default' }}
+            style={{ cursor: !isPressing ? 'nesw-resize' : pointerType }}
           />
+
           <div
             className="outside-boundary"
             id="bottom"
-            style={{ width: frameInfo.width, cursor: !isPressing ? 'ns-resize' : 'default' }}
+            style={{ width: frameInfo.width, cursor: !isPressing ? 'ns-resize' : pointerType }}
           />
+
           <div
             className="outside-boundary corner"
             id="outside-bottom-right"
-            style={{ cursor: !isPressing ? 'nwse-resize' : 'default' }}
+            style={{ cursor: !isPressing ? 'nwse-resize' : pointerType }}
           />
         </div>
       </div>
